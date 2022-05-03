@@ -5,7 +5,8 @@ description = ""
 authors = ["callummole <cmole@turing.ac.uk>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
+private-pgm = {git = "https://github.com/ryan112358/private-pgm.git"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
