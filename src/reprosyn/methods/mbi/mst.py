@@ -1,9 +1,9 @@
 import itertools
 
 import click
-import networkx as nx
 import numpy as np
 import pandas as pd
+import networkx as nx
 from disjoint_set import DisjointSet
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
 from scipy import sparse
