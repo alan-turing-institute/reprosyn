@@ -1,7 +1,7 @@
 import itertools
 
 import click
-#import networkx as nx
+import networkx as nx
 import numpy as np
 import pandas as pd
 #from disjoint_set import DisjointSet
