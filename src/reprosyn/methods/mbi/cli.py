@@ -30,7 +30,7 @@ from reprosyn.methods.mbi.mst import mstmain
 #     default=1.0,
 #     help="privacy parameter",
 # )
-def mst(file, out):
+def mstcommand(file, out):
     """Runs MST on --file
 
     Usage
@@ -43,8 +43,8 @@ def mst(file, out):
         output = mstmain(dataset=file)
         click.echo(output.df, file=out)
     else:
-        mst.main(["--help"])
+        mstcommand.main(["--help"])
 
 
 if __name__ == "__main__":
-    mst()
+    mstcommand()
