@@ -5,12 +5,11 @@ description = ""
 authors = ["callummole <cmole@turing.ac.uk>"]
 
 [tool.poetry.dependencies]
-python = "~3.9"
+python = ">=3.9,<3.11"
 private-pgm = {git = "https://github.com/ryan112358/private-pgm.git"}
 disjoint-set = "^0.7.3"
 black = "^22.3.0"
 flake8 = "^4.0.1"
-isort = "^5.10.1"
 pyinstaller = "^5.0.1"
 numpy = "^1.22.3"
 pandas = "^1.4.2"

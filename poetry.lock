@@ -129,20 +129,6 @@ optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
-name = "isort"
-version = "5.10.1"
-description = "A Python utility / library to sort Python imports."
-category = "main"
-optional = false
-python-versions = ">=3.6.1,<4.0"
-
-[package.extras]
-pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
-requirements_deprecated_finder = ["pipreqs", "pip-api"]
-colors = ["colorama (>=0.4.3,<0.5.0)"]
-plugins = ["setuptools"]
-
-[[package]]
 name = "kiwisolver"
 version = "1.4.2"
 description = "A fast implementation of the Cassowary constraint solver"
@@ -259,6 +245,7 @@ numpy = [
     {version = ">=1.18.5", markers = "platform_machine != \"aarch64\" and platform_machine != \"arm64\" and python_version < \"3.10\""},
     {version = ">=1.19.2", markers = "platform_machine == \"aarch64\" and python_version < \"3.10\""},
     {version = ">=1.20.0", markers = "platform_machine == \"arm64\" and python_version < \"3.10\""},
+    {version = ">=1.21.0", markers = "python_version >= \"3.10\""},
 ]
 python-dateutil = ">=2.8.1"
 pytz = ">=2020.1"
@@ -516,8 +503,8 @@ python-versions = "*"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "~3.9"
-content-hash = "f23686cde568a2fef84f553e69420c46bd9c482113e8371b8790ab842d6a8c07"
+python-versions = ">=3.9,<3.11"
+content-hash = "53520943c18c529ed1f26c83e23060d31130b74c88ef762b803724ae6f58877f"
 
 [metadata.files]
 altgraph = [
@@ -583,10 +570,6 @@ fonttools = [
 ]
 future = [
     {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
-]
-isort = [
-    {file = "isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},
-    {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 kiwisolver = [
     {file = "kiwisolver-1.4.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:6e395ece147f0692ca7cdb05a028d31b83b72c369f7b4a2c1798f4b96af1e3d8"},
