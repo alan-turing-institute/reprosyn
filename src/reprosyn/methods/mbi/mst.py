@@ -1,13 +1,13 @@
-import itertools
+#import itertools
 
-import click
+#import click
 import networkx as nx
-import numpy as np
+#import numpy as np
 import pandas as pd
 #from disjoint_set import DisjointSet
-from reprosyn.methods.mbi.cdp2adp import cdp_rho
-from scipy import sparse
-from scipy.special import logsumexp
+#from reprosyn.methods.mbi.cdp2adp import cdp_rho
+#from scipy import sparse
+#from scipy.special import logsumexp
 
 def mstmain(dataset):
 
