@@ -19,7 +19,7 @@ and does not rely on public provisional data for measurement selection.
 """
 
 
-def MST(data, epsilon, delta):
+def MST(data, epsilon, delta, rows):
     rho = cdp_rho(epsilon, delta)
     sigma = np.sqrt(3 / (2 * rho))
     cliques = [(col,) for col in data.domain]
@@ -29,7 +29,7 @@ def MST(data, epsilon, delta):
     log2 = measure(data, cliques, sigma)
     engine = FactoredInference(data.domain, iters=1000)
     est = engine.estimate(log1 + log2)
-    synth = est.synthetic_data()
+    synth = est.synthetic_data(rows)
     return undo_compress_fn(synth)
 
 
@@ -179,7 +179,7 @@ def recode_as_category(data, columns=""):
     return data
 
 
-def mstmain(dataset):
+def mstmain(dataset, size):
 
     """Runs mst on given data
 
@@ -188,29 +188,32 @@ def mstmain(dataset):
     Synthetic dataset of mbi type Dataset
     """
     # load data
+
     df = pd.read_csv(dataset)
     df = recode_as_category(drop_UID(df))
 
     data = Dataset(df, Domain.fromdict(get_domain_dict(df)))
 
     # put temporary defaults in for now.
-    num_marginals = None
-    max_cells = 10000
-    degree = 2
+    # num_marginals = None
+    # max_cells = 10000
+    # degree = 2
     delta = 1e-9
     epsilon = 1.0
 
-    workload = list(itertools.combinations(data.domain, degree))
-    workload = [cl for cl in workload if data.domain.size(cl) <= max_cells]
-    rng = np.random.default_rng()
-    if num_marginals is not None:
-        workload = [
-            workload[i] for i in rng.choice(len(workload), num_marginals, replace=False)
-        ]
+    # workload = list(itertools.combinations(data.domain, degree))
+    # workload = [cl for cl in workload if data.domain.size(cl) <= max_cells]
+    # rng = np.random.default_rng()
+    # if num_marginals is not None:
+    #     workload = [
+    #         workload[i] for i in rng.choice(len(workload), num_marginals, replace=False)
+    #     ]
 
     click.echo("running MST...")
-    synth = MST(data, epsilon, delta)
-    click.echo("MST complete")
+    if not size:
+        size = len(df)
+    synth = MST(data, epsilon, delta, size)
+    click.echo(f"MST complete: {size} rows generated")
 
     return synth
 
