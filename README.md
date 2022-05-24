@@ -20,12 +20,24 @@ rsyn --help
 
 Example usage:
 
+`rsyn [GLOBAL OPTIONS] [GENERATOR] [GENERATOR OPTIONS]` 
+
 ```
 CENSUS=<census 1% file path>
-rsyn mst --file $CENSUS
+rsyn --file $CENSUS mst
 
 rsyn mst <  $CENSUS
 ```
+
+You can also run the package from within another project, assuming you have poetry installed. Though currently you need to run this from within the root of the project: 
+
+```
+git clone https://github.com/alan-turing-institute/reprosyn
+cd reprosyn
+poetry install
+poetry run rsyn --size 100 --file ./src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv mst
+```
+
 
 ## Building exe
 
