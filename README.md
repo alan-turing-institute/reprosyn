@@ -18,6 +18,12 @@ poetry shell #opens environment in a subshell
 rsyn --help
 ```
 
+You can also install it via pip:
+
+```
+pip install git+https://github.com/alan-turing-institute/reprosyn
+```
+
 Example usage:
 
 `rsyn [GLOBAL OPTIONS] [GENERATOR] [GENERATOR OPTIONS]` 
