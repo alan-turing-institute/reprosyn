@@ -1,4 +1,4 @@
-# Reprosyn: A tool for synthetising the census 1% teaching file.
+# Reprosyn: A tool for synthesising the census 1% teaching file.
 
 A python package command-line tool that applies various synthetic data generation methods to the Census 1% teaching file.
 
