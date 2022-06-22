@@ -145,23 +145,6 @@ def reverse_data(data, supports):
     return Dataset(df, newdom)
 
 
-def default_params():
-    """
-    Return default parameters to run this program
-    :returns: a dictionary of default param settings for each command line arg
-    """
-    params = {}
-    params["dataset"] = "../data/adult.csv"
-    params["domain"] = "../data/adult-domain.json"
-    params["epsilon"] = 1.0
-    params["delta"] = 1e-9
-    params["degree"] = 2
-    params["num_marginals"] = None
-    params["max_cells"] = 10000
-
-    return params
-
-
 def get_domain_dict(data):
 
     return dict(zip(data.columns, data.nunique()))
@@ -179,7 +162,7 @@ def recode_as_category(data, columns=""):
     return data
 
 
-def mstmain(dataset, size):
+def mstmain(dataset, size, args):
 
     """Runs mst on given data
 
@@ -192,14 +175,15 @@ def mstmain(dataset, size):
     df = pd.read_csv(dataset)
     df = recode_as_category(drop_UID(df))
 
-    data = Dataset(df, Domain.fromdict(get_domain_dict(df)))
+    if not args.domain:
+        args.domain = get_domain_dict(df)
+
+    data = Dataset(df, Domain.fromdict(args.domain))
 
     # put temporary defaults in for now.
     # num_marginals = None
     # max_cells = 10000
     # degree = 2
-    delta = 1e-9
-    epsilon = 1.0
 
     # workload = list(itertools.combinations(data.domain, degree))
     # workload = [cl for cl in workload if data.domain.size(cl) <= max_cells]
@@ -212,7 +196,7 @@ def mstmain(dataset, size):
     click.echo("running MST...")
     if not size:
         size = len(df)
-    synth = MST(data, epsilon, delta, size)
+    synth = MST(data, args.epsilon, args.delta, size)
     click.echo(f"MST complete: {size} rows generated")
 
     return synth
@@ -221,28 +205,3 @@ def mstmain(dataset, size):
 if __name__ == "__main__":
 
     mstmain()
-
-    """
-    parser.add_argument("--dataset", help="dataset to use")
-    parser.add_argument("--domain", help="domain to use")
-    parser.add_argument("--epsilon", type=float, help="privacy parameter")
-    parser.add_argument("--delta", type=float, help="privacy parameter")
-
-    parser.add_argument("--degree", type=int,
-                        help="degree of marginals in workload")
-    parser.add_argument(
-        "--num_marginals", type=int, help="number of marginals in workload"
-    )
-    parser.add_argument(
-        "--max_cells",
-        type=int,
-        help="maximum number of cells for marginals in workload",
-    )
-
-    parser.add_argument("--save", type=str, help="path to save synthetic data")
-
-    parser.set_defaults(**default_params())
-    args = parser.parse_args()
-
-    """
-    # data = Dataset.load(args.dataset, args.domain)
