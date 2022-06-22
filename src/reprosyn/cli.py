@@ -28,7 +28,7 @@ class Generator(object):
     def set_config_path(self, method):
         self.config = path.join(
             self.configfolder,
-            f"mst_{self.config}",
+            f"{method}_{self.config}",
         )
 
 
@@ -71,7 +71,7 @@ class Generator(object):
     help="directory for method configs",
 )
 @click.pass_context
-def main(ctx, file, out, size, generateconfig, config, configfolder):
+def main(ctx, **kwargs):
     """ "A cli tool synthesising the 1% census"
 
     Usage: rsyn <global options> <generator> <generator options>
@@ -84,14 +84,7 @@ def main(ctx, file, out, size, generateconfig, config, configfolder):
     census.csv > rsyn mst
     """
 
-    ctx.obj = Generator(
-        file,
-        out,
-        size,
-        generateconfig,
-        config,
-        configfolder,
-    )
+    ctx.obj = Generator(**kwargs)
 
     # print(f"Executing generator {ctx.invoked_subcommand}")
 
