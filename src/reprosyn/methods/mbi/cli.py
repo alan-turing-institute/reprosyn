@@ -41,18 +41,18 @@ from reprosyn.methods.mbi.mst import mstmain
     default=2,
     help="degree of marginals in workload",
 )
-@click.option(
-    "--num_marginals",
-    type=int,
-    default=None,
-    help="number of marginals in workload",
-)
-@click.option(
-    "--max_cells",
-    type=int,
-    default=10000,
-    help="maximum number of cells for marginals in workload",
-)
+# @click.option(
+#     "--num_marginals",
+#     type=int,
+#     default=None,
+#     help="number of marginals in workload",
+# )
+# @click.option(
+#     "--max_cells",
+#     type=int,
+#     default=10000,
+#     help="maximum number of cells for marginals in workload",
+# )
 @click.pass_obj
 def mstcommand(sdg, **kwargs):
     """Runs MST on --file or STDIN
