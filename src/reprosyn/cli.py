@@ -85,10 +85,16 @@ def main(ctx, **kwargs):
 
     ctx.obj = Generator(**kwargs)
 
-    if ctx.obj.config != "-":
+    if path.exists(ctx.obj.get_config_path()):
+        if ctx.obj.generateconfig:
+            click.confirm(
+                f"Config file exists at {ctx.obj.get_config_path()}, override?",
+                abort=True,
+            )
         with click.open_file(ctx.obj.get_config_path(), "r") as f:
             config_params = json.load(f)
         ctx.default_map = {ctx.invoked_subcommand: config_params}
+
     # print(f"Executing generator {ctx.invoked_subcommand}")
 
 
