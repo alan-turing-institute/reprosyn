@@ -5,6 +5,8 @@ from datetime import datetime
 
 from reprosyn.methods.mbi.cli import mstcommand
 
+import json
+
 # Helper class for manipulating options across reprosyn
 
 
@@ -25,11 +27,8 @@ class Generator(object):
         self.config = config
         self.configfolder = configfolder
 
-    def set_config_path(self, method):
-        self.config = path.join(
-            self.configfolder,
-            f"{method}_{self.config}",
-        )
+    def get_config_path(self):
+        return path.join(self.configfolder, self.config)
 
 
 @click.group(
@@ -86,6 +85,10 @@ def main(ctx, **kwargs):
 
     ctx.obj = Generator(**kwargs)
 
+    if ctx.obj.config != "-":
+        with click.open_file(ctx.obj.get_config_path(), "r") as f:
+            config_params = json.load(f)
+        ctx.default_map = {ctx.invoked_subcommand: config_params}
     # print(f"Executing generator {ctx.invoked_subcommand}")
 
 

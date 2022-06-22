@@ -175,10 +175,10 @@ def mstmain(dataset, size, args):
     df = pd.read_csv(dataset)
     df = recode_as_category(drop_UID(df))
 
-    if not args.domain:
-        args.domain = get_domain_dict(df)
+    if not args["domain"]:
+        args["domain"] = get_domain_dict(df)
 
-    data = Dataset(df, Domain.fromdict(args.domain))
+    data = Dataset(df, Domain.fromdict(args["domain"]))
 
     # put temporary defaults in for now.
     # num_marginals = None
@@ -196,7 +196,7 @@ def mstmain(dataset, size, args):
     click.echo("running MST...")
     if not size:
         size = len(df)
-    synth = MST(data, args.epsilon, args.delta, size)
+    synth = MST(data, args["epsilon"], args["delta"], size)
     click.echo(f"MST complete: {size} rows generated")
 
     return synth

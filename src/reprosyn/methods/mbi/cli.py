@@ -65,19 +65,18 @@ def mstcommand(sdg, **kwargs):
     rsyn mst < census.csv
     """
 
-    # all methods will need the config generation so this should be moved to a global method.
     if sdg.generateconfig:
         if sdg.config != "-":
-            sdg.set_config_path("mst")
-        with click.open_file(sdg.config, "w") as outfile:
-            click.echo(f"Saving to config file to {sdg.config}")
+            p = sdg.get_config_path()
+        with click.open_file(p, "w") as outfile:
+            click.echo(f"Saving to config file to {p}")
             json.dump(kwargs, outfile)
     else:
         if not sdg.file.isatty():
-            output = mstmain(dataset=sdg.file, size=sdg.size, params=kwargs)
+            output = mstmain(dataset=sdg.file, size=sdg.size, args=kwargs)
             click.echo(output.df, file=sdg.out)
         else:
-            print("here")
+            click.echo("Please give a dataset using --file or STDIN")
             mstcommand.main(["--help"])
 
 
