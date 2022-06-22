@@ -1,4 +1,5 @@
 import click
+import json
 from reprosyn.methods.mbi.mst import mstmain
 
 
@@ -21,7 +22,8 @@ from reprosyn.methods.mbi.mst import mstmain
     help="privacy parameter",
 )
 @click.pass_obj
-def mstcommand(obj, epsilon):
+@click.pass_context
+def mstcommand(ctx, obj, epsilon):
     """Runs MST on --file or STDIN
 
     See rsyn --help for general use.
@@ -31,11 +33,20 @@ def mstcommand(obj, epsilon):
     rsyn --file census.csv mst  \n
     rsyn mst < census.csv
     """
-    if not obj.file.isatty():
-        output = mstmain(dataset=obj.file, size=obj.size)
-        click.echo(output.df, file=obj.out)
+    # all methods will need the config generation so this should be moved to a global method.
+    if obj.generateconfig:
+        if obj.config != "-":
+            obj.set_config_path("mst")
+        with click.open_file(obj.config, "w") as outfile:
+            click.echo(f"Saving to config file to {obj.config}")
+            json.dump(ctx.params, outfile)
     else:
-        mstcommand.main(["--help"])
+        if not obj.file.isatty():
+            output = mstmain(dataset=obj.file, size=obj.size)
+            click.echo(output.df, file=obj.out)
+        else:
+            print("here")
+            mstcommand.main(["--help"])
 
 
 if __name__ == "__main__":
