@@ -28,7 +28,11 @@ class Generator(object):
         self.configfolder = configfolder
 
     def get_config_path(self):
-        return path.join(self.configfolder, self.config)
+        if self.config != "-":
+            p = path.join(self.configfolder, self.config)
+        else:
+            p = self.config
+        return p
 
 
 @click.group(
