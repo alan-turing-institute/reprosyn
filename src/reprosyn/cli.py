@@ -5,6 +5,8 @@ from datetime import datetime
 
 from reprosyn.methods.mbi.cli import mstcommand
 
+import json
+
 # Helper class for manipulating options across reprosyn
 
 
@@ -25,11 +27,12 @@ class Generator(object):
         self.config = config
         self.configfolder = configfolder
 
-    def set_config_path(self, method):
-        self.config = path.join(
-            self.configfolder,
-            f"mst_{self.config}",
-        )
+    def get_config_path(self):
+        if self.config != "-":
+            p = path.join(self.configfolder, self.config)
+        else:
+            p = self.config
+        return p
 
 
 @click.group(
@@ -71,7 +74,7 @@ class Generator(object):
     help="directory for method configs",
 )
 @click.pass_context
-def main(ctx, file, out, size, generateconfig, config, configfolder):
+def main(ctx, **kwargs):
     """ "A cli tool synthesising the 1% census"
 
     Usage: rsyn <global options> <generator> <generator options>
@@ -84,14 +87,17 @@ def main(ctx, file, out, size, generateconfig, config, configfolder):
     census.csv > rsyn mst
     """
 
-    ctx.obj = Generator(
-        file,
-        out,
-        size,
-        generateconfig,
-        config,
-        configfolder,
-    )
+    ctx.obj = Generator(**kwargs)
+
+    if path.exists(ctx.obj.get_config_path()):
+        if ctx.obj.generateconfig:
+            click.confirm(
+                f"Config file exists at {ctx.obj.get_config_path()}, override?",
+                abort=True,
+            )
+        with click.open_file(ctx.obj.get_config_path(), "r") as f:
+            config_params = json.load(f)
+        ctx.default_map = {ctx.invoked_subcommand: config_params}
 
     # print(f"Executing generator {ctx.invoked_subcommand}")
 
