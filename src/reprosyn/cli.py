@@ -59,7 +59,7 @@ class Generator(object):
 @click.option(
     "--generateconfig",
     is_flag=True,
-    help="generate input json",
+    help="flag to generate input json",
 )
 @click.option(
     "--config",

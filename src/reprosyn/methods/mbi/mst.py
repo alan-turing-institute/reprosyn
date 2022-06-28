@@ -193,11 +193,9 @@ def mstmain(dataset, size, args):
     #         workload[i] for i in rng.choice(len(workload), num_marginals, replace=False)
     #     ]
 
-    click.echo("running MST...")
     if not size:
         size = len(df)
     synth = MST(data, args["epsilon"], args["delta"], size)
-    click.echo(f"MST complete: {size} rows generated")
 
     return synth
 
