@@ -68,7 +68,7 @@ def mstcommand(sdg, **kwargs):
     if sdg.generateconfig:
         p = sdg.get_config_path()
         with click.open_file(p, "w") as outfile:
-            click.echo(f"Saving to config file to {p}")
+            # click.echo(f"Saving to config file to {p}")
             json.dump(kwargs, outfile)
     else:
         if not sdg.file.isatty():
