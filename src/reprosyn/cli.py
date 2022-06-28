@@ -6,6 +6,7 @@ from datetime import datetime
 from reprosyn.methods.mbi.cli import mstcommand
 
 import json
+from io import StringIO
 
 # Helper class for manipulating options across reprosyn
 
@@ -17,21 +18,23 @@ class Generator(object):
         out=None,
         size=None,
         generateconfig=None,
-        config=None,
+        configpath=None,
         configfolder=None,
+        configstring=None,
     ):
         self.file = file
         self.out = out
         self.size = size
         self.generateconfig = generateconfig
-        self.config = config
+        self.configpath = configpath
         self.configfolder = configfolder
+        self.configstring = configstring
 
     def get_config_path(self):
-        if self.config != "-":
-            p = path.join(self.configfolder, self.config)
+        if self.configpath != "-":
+            p = path.join(self.configfolder, self.configpath)
         else:
-            p = self.config
+            p = self.configpath
         return p
 
 
@@ -62,10 +65,16 @@ class Generator(object):
     help="flag to generate input json",
 )
 @click.option(
-    "--config",
+    "--configpath",
     type=click.Path(),
     default="-",
     help="path to config file. If --generateconfig, config file is saved here",
+)
+@click.option(
+    "--configstring",
+    type=click.STRING,
+    default="{}",
+    help="a string specifying configuration in a dictionary. Overrided by --configpath",
 )
 @click.option(
     "--configfolder",
@@ -97,8 +106,12 @@ def main(ctx, **kwargs):
             )
         with click.open_file(ctx.obj.get_config_path(), "r") as f:
             config_params = json.load(f)
-        ctx.default_map = {ctx.invoked_subcommand: config_params}
+    else:
+        config_params = json.load(
+            StringIO(ctx.obj.configstring)
+        )  # if nothing given with not update
 
+    ctx.default_map = {ctx.invoked_subcommand: config_params}
     # print(f"Executing generator {ctx.invoked_subcommand}")
 
 
