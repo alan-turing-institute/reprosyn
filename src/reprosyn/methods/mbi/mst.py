@@ -150,11 +150,6 @@ def get_domain_dict(data):
     return dict(zip(data.columns, data.nunique()))
 
 
-def drop_UID(data, columns=["Person ID"]):
-    """Accepts list of UIDs we do not want to synthesise"""
-    return data.drop(columns, axis=1)
-
-
 def recode_as_category(data, columns=""):
     """Accepts list of column names to record as category"""
     for col in data.columns:
@@ -173,7 +168,7 @@ def mstmain(dataset, size, args):
     # load data
 
     df = pd.read_csv(dataset)
-    df = recode_as_category(drop_UID(df))
+    df = recode_as_category(df)
 
     if not args["domain"]:
         args["domain"] = get_domain_dict(df)
