@@ -73,7 +73,7 @@ def mstcommand(sdg, **kwargs):
     else:
         if not sdg.file.isatty():
             output = mstmain(dataset=sdg.file, size=sdg.size, args=kwargs)
-            click.echo(output.df, file=sdg.out)
+            click.echo(output.df.to_csv(), file=sdg.out)
         else:
             click.echo("Please give a dataset using --file or STDIN")
             mstcommand.main(["--help"])
