@@ -150,10 +150,36 @@ def get_domain_dict(data):
     return dict(zip(data.columns, data.nunique()))
 
 
-def recode_as_category(data, columns=""):
-    """Accepts list of column names to record as category"""
+def recode_as_category(data):
+    """Accepts list of column names to record as category
+
+    Returns
+    -------
+    Pandas dataframe recoded as categorical integers
+
+    Mapping dictionary with columns as keys and a lookup dict as values
+    """
+    mapping = {}
     for col in data.columns:
+        orig = data[col]
         data[col] = data[col].astype("category").cat.codes
+        mapping[col] = dict(zip(data[col], orig))
+
+    return data, mapping
+
+
+def recode_as_original(data, mapping):
+
+    """Given a dataframe encoded as categorical codes and a mapping dictionary, retrieves original values
+
+    Returns
+    -------
+    Pandas dataframe mapped to original values.
+    """
+
+    for col in data.columns:
+        data[col] = data[col].apply(lambda x: mapping[col][x])
+
     return data
 
 
@@ -168,7 +194,7 @@ def mstmain(dataset, size, args):
     # load data
 
     df = pd.read_csv(dataset)
-    df = recode_as_category(df)
+    df, mapping = recode_as_category(df)
 
     if not args["domain"]:
         args["domain"] = get_domain_dict(df)
@@ -191,6 +217,8 @@ def mstmain(dataset, size, args):
     if not size:
         size = len(df)
     synth = MST(data, args["epsilon"], args["delta"], size)
+
+    synth.df = recode_as_original(synth.df, mapping)
 
     return synth
 
