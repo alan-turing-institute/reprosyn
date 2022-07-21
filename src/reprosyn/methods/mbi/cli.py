@@ -1,6 +1,7 @@
 import click
 import json
 from reprosyn.methods.mbi.mst import mstmain
+from reprosyn.generator import wrap_generator
 
 # params = {}
 # params["dataset"] = "../data/adult.csv"
@@ -53,7 +54,7 @@ from reprosyn.methods.mbi.mst import mstmain
 #     default=10000,
 #     help="maximum number of cells for marginals in workload",
 # )
-@click.pass_obj
+@wrap_generator
 def mstcommand(sdg, **kwargs):
     """Runs MST on --file or STDIN
 
@@ -64,19 +65,8 @@ def mstcommand(sdg, **kwargs):
     rsyn --file census.csv mst  \n
     rsyn mst < census.csv
     """
-
-    if sdg.generateconfig:
-        p = sdg.get_config_path()
-        with click.open_file(p, "w") as outfile:
-            # click.echo(f"Saving to config file to {p}")
-            json.dump(kwargs, outfile)
-    else:
-        if not sdg.file.isatty():
-            output = mstmain(dataset=sdg.file, size=sdg.size, args=kwargs)
-            click.echo(output.df.to_csv(None, index=False), file=sdg.out)
-        else:
-            click.echo("Please give a dataset using --file or STDIN")
-            mstcommand.main(["--help"])
+    output = mstmain(dataset=sdg.file, size=sdg.size, args=kwargs)
+    return output.df
 
 
 if __name__ == "__main__":
