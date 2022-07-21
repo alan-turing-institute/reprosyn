@@ -4,38 +4,10 @@ from os import path, getcwd
 from datetime import datetime
 
 from reprosyn.methods.mbi.cli import mstcommand
+from reprosyn.generator import Generator
 
 import json
 from io import StringIO
-
-# Helper class for manipulating options across reprosyn
-
-
-class Generator(object):
-    def __init__(
-        self,
-        file=None,
-        out=None,
-        size=None,
-        generateconfig=None,
-        configpath=None,
-        configfolder=None,
-        configstring=None,
-    ):
-        self.file = file
-        self.out = out
-        self.size = size
-        self.generateconfig = generateconfig
-        self.configpath = configpath
-        self.configfolder = configfolder
-        self.configstring = configstring
-
-    def get_config_path(self):
-        if self.configpath != "-":
-            p = path.join(self.configfolder, self.configpath)
-        else:
-            p = self.configpath
-        return p
 
 
 @click.group(
