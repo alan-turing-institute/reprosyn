@@ -2,6 +2,7 @@ import itertools
 
 import numpy as np
 import pandas as pd
+from os import path
 import networkx as nx
 import json
 from disjoint_set import DisjointSet
@@ -22,7 +23,7 @@ and does not rely on public provisional data for measurement selection.
 """
 
 
-def mst(data, epsilon, delta, rows):
+def mst(self, data, epsilon, delta, rows):
     rho = cdp_rho(epsilon, delta)
     sigma = np.sqrt(3 / (2 * rho))
     cliques = [(col,) for col in data.domain]
@@ -187,66 +188,31 @@ def recode_as_original(data, mapping):
 
 
 class MST(GeneratorFunc):
-    def __init__(self, func, dataset, size=None, output_dir=".", **kwargs):
-        super().__init__(func, dataset, size, output_dir, **kwargs)
-        self.gen = mst
+
+    generator = mst
 
     def preprocess(self):
         df, mapping = recode_as_category(self.dataset)
         self.mapping = mapping
-        self.dataset = df
+
+        # domain could be json
+        self.domain = self.options["domain"] or get_domain_dict(df)
+
+        self.dataset = Dataset(df, Domain.fromdict(self.domain))
 
     def postprocess(self):
         self.domain = self.output.domain
         self.output = recode_as_original(self.output.df, self.mapping)
+
+    def generate(self):
+        # inspect signatuere check for size as parameter
+        self.output = self.generator(
+            self.dataset, self.options["epsilon"], self.options["delta"], self.size
+        )
+        return self.output
 
     def save(self):
         super().save()
         with open(self.output_dir / "domain.json", "w") as outfile:
             # click.echo(f"Saving to config file to {p}")
             json.dump(self.domain, outfile)
-
-
-def mstmain(dataset, size, args):
-
-    """Runs mst on given data
-
-    Returns
-    -------
-    Synthetic dataset of mbi type Dataset
-    """
-    # load data
-
-    df = pd.read_csv(dataset)
-    df, mapping = recode_as_category(df)
-
-    if not args["domain"]:
-        args["domain"] = get_domain_dict(df)
-
-    data = Dataset(df, Domain.fromdict(args["domain"]))
-
-    # put temporary defaults in for now.
-    # num_marginals = None
-    # max_cells = 10000
-    # degree = 2
-
-    # workload = list(itertools.combinations(data.domain, degree))
-    # workload = [cl for cl in workload if data.domain.size(cl) <= max_cells]
-    # rng = np.random.default_rng()
-    # if num_marginals is not None:
-    #     workload = [
-    #         workload[i] for i in rng.choice(len(workload), num_marginals, replace=False)
-    #     ]
-
-    if not size:
-        size = len(df)
-    synth = MST(data, args["epsilon"], args["delta"], size)
-
-    synth.df = recode_as_original(synth.df, mapping)
-
-    return synth
-
-
-if __name__ == "__main__":
-
-    mstmain()

@@ -1,10 +1,10 @@
 import click
 import sys
-from os import path, getcwd
-from datetime import datetime
+from os import path
+
 
 from reprosyn.methods.mbi.cli import mstcommand
-from reprosyn.generator import Generator
+from reprosyn.generator import Handler
 
 import json
 from io import StringIO
@@ -22,9 +22,9 @@ from io import StringIO
 )
 @click.option(
     "--out",
-    help="filepath to write output to, omit for STDOUT",
-    type=click.File("at"),
-    default=sys.stdout,
+    help="filepath to write output to",
+    type=click.Path(),
+    default=".",
 )
 @click.option(
     "--size",
@@ -68,7 +68,7 @@ def main(ctx, **kwargs):
     census.csv > rsyn mst
     """
 
-    ctx.obj = Generator(**kwargs)
+    ctx.obj = Handler(**kwargs)
 
     if path.exists(ctx.obj.get_config_path()):
         if ctx.obj.generateconfig:
