@@ -1,15 +1,18 @@
 import itertools
 
-import click
 import numpy as np
 import pandas as pd
 import networkx as nx
+import json
 from disjoint_set import DisjointSet
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
 from scipy import sparse
 from scipy.special import logsumexp
 
 from mbi import Dataset, Domain, FactoredInference
+
+from reprosyn.generator import GeneratorFunc
+
 
 """
 This is a generalization of the winning mechanism from the
@@ -19,7 +22,7 @@ and does not rely on public provisional data for measurement selection.
 """
 
 
-def MST(data, epsilon, delta, rows):
+def mst(data, epsilon, delta, rows):
     rho = cdp_rho(epsilon, delta)
     sigma = np.sqrt(3 / (2 * rho))
     cliques = [(col,) for col in data.domain]
@@ -181,6 +184,27 @@ def recode_as_original(data, mapping):
         data[col] = data[col].apply(lambda x: mapping[col][x])
 
     return data
+
+
+class MST(GeneratorFunc):
+    def __init__(self, func, dataset, size=None, output_dir=".", **kwargs):
+        super().__init__(func, dataset, size, output_dir, **kwargs)
+        self.gen = mst
+
+    def preprocess(self):
+        df, mapping = recode_as_category(self.dataset)
+        self.mapping = mapping
+        self.dataset = df
+
+    def postprocess(self):
+        self.domain = self.output.domain
+        self.output = recode_as_original(self.output.df, self.mapping)
+
+    def save(self):
+        super().save()
+        with open(self.output_dir / "domain.json", "w") as outfile:
+            # click.echo(f"Saving to config file to {p}")
+            json.dump(self.domain, outfile)
 
 
 def mstmain(dataset, size, args):

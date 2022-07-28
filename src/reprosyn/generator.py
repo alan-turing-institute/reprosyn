@@ -1,8 +1,45 @@
 import click
 from os import path
+from os import PathLike
 import json
+import io
+import pandas as pd
+import pathlib
 
-# Helper class for manipulating options across reprosyn
+
+class GeneratorFunc:
+    """Base generator function class"""
+
+    def __init__(self, func, dataset, size=None, output_dir=".", **kwargs):
+        self.dataset = self.read_dataset(dataset)
+        self.size = size or len(self.dataset)
+        self.gen = func
+        self.options = kwargs
+        self.output_dir = pathlib.Path(output_dir)
+
+    def read_dataset(dataset):
+        if isinstance(dataset, (io.StringIO, str, PathLike)):
+            return pd.read_csv(dataset)
+        elif isinstance(dataset, pd.DataFrame):
+            return dataset
+        else:
+            raise ValueError("Pass a filename, StringIO, or pandas dataframe")
+
+    def preprocess(self):
+        pass
+
+    def generate(self):
+        # inspect signatuere check for size as parameter
+        self.output = self.gen(self.dataset, self.size, **self.options)
+        return self.output
+
+    def postprocess(self):
+        pass
+
+    def save(self):
+        return self.output.to_csv(self.output_dir)
+
+
 class Generator(object):
     def __init__(
         self,
