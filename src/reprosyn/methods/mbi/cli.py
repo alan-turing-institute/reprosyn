@@ -1,8 +1,8 @@
 import click
-import json
-from reprosyn.methods.mbi.mst import MST
-from reprosyn.generator import wrap_generator
+
 from reprosyn import run
+from reprosyn.generator import wrap_generator
+from reprosyn.methods.mbi.mst import MST
 
 
 @click.command(
@@ -54,11 +54,12 @@ def mstcommand(h, **kwargs):
 
     Examples:
 
-    rsyn --file census.csv mst  \n
-    rsyn mst < census.csv
+    $ rsyn --file census.csv mst
+    $ rsyn mst < census.csv
     """
-    print(h.file)
-    generator = run(MST, dataset=h.file, size=h.size, output_dir=h.out, **kwargs)
+    generator = run(
+        MST, dataset=h.file, size=h.size, output_dir=h.out, **kwargs
+    )
     return generator.output
 
 

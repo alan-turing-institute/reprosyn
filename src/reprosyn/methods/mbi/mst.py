@@ -1,26 +1,24 @@
-import itertools
+"""MST
 
-import numpy as np
-import pandas as pd
-from os import path
-import networkx as nx
+This is a generalization of the winning mechanism from the
+2018 NIST Differential Privacy Synthetic Data Competition.
+Unlike the original implementation, this one can work for any discrete
+dataset, and does not rely on public provisional data for measurement
+selection.
+"""
+
+import itertools
 import json
+
+import networkx as nx
+import numpy as np
 from disjoint_set import DisjointSet
-from reprosyn.methods.mbi.cdp2adp import cdp_rho
+from mbi import Dataset, Domain, FactoredInference
 from scipy import sparse
 from scipy.special import logsumexp
 
-from mbi import Dataset, Domain, FactoredInference
-
 from reprosyn.generator import GeneratorFunc
-
-
-"""
-This is a generalization of the winning mechanism from the
-2018 NIST Differential Privacy Synthetic Data Competition.
-Unlike the original implementation, this one can work for any discrete dataset,
-and does not rely on public provisional data for measurement selection.
-"""
+from reprosyn.methods.mbi.cdp2adp import cdp_rho
 
 
 def mst(self, data, epsilon, delta, rows):
@@ -70,7 +68,9 @@ def compress_domain(data, measurements):
     return transform_data(data, supports), new_measurements, undo_compress_fn
 
 
-def exponential_mechanism(q, eps, sensitivity, prng=np.random, monotonic=False):
+def exponential_mechanism(
+    q, eps, sensitivity, prng=np.random, monotonic=False
+):
     coef = 1.0 if monotonic else 0.5
     scores = coef * eps / sensitivity * q
     probas = np.exp(scores - logsumexp(scores))
@@ -173,8 +173,8 @@ def recode_as_category(data):
 
 
 def recode_as_original(data, mapping):
-
-    """Given a dataframe encoded as categorical codes and a mapping dictionary, retrieves original values
+    """Given a dataframe encoded as categorical codes and a mapping
+    dictionary, retrieves original values
 
     Returns
     -------
@@ -188,6 +188,7 @@ def recode_as_original(data, mapping):
 
 
 class MST(GeneratorFunc):
+    """Generator class for the MST mechanism."""
 
     generator = mst
 
@@ -200,19 +201,20 @@ class MST(GeneratorFunc):
 
         self.dataset = Dataset(df, Domain.fromdict(self.domain))
 
-    def postprocess(self):
-        self.domain = self.output.domain
-        self.output = recode_as_original(self.output.df, self.mapping)
-
     def generate(self):
         # inspect signatuere check for size as parameter
         self.output = self.generator(
-            self.dataset, self.options["epsilon"], self.options["delta"], self.size
+            self.dataset,
+            self.options["epsilon"],
+            self.options["delta"],
+            self.size,
         )
         return self.output
+
+    def postprocess(self):
+        self.output = recode_as_original(self.output.df, self.mapping)
 
     def save(self):
         super().save()
         with open(self.output_dir / "domain.json", "w") as outfile:
-            # click.echo(f"Saving to config file to {p}")
             json.dump(self.domain.config, outfile)

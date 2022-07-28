@@ -1,10 +1,9 @@
-import click
-from os import path
-from os import PathLike
 import json
-import pandas as pd
-
 import pathlib
+from os import path
+
+import click
+import pandas as pd
 
 
 def _basegenerate(gen):
