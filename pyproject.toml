@@ -10,6 +10,7 @@ private-pgm = {git = "https://github.com/ryan112358/private-pgm.git"}
 disjoint-set = "^0.7.3"
 black = "^22.3.0"
 flake8 = "^4.0.1"
+isort = "^5.10.1"
 pyinstaller = "^5.0.1"
 numpy = "^1.22.3"
 pandas = "^1.4.2"
@@ -20,6 +21,12 @@ pytest = "^5.2"
 [tool.poetry.scripts]
 rsyn = "reprosyn.cli:main"
 
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+line_length = 79
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
