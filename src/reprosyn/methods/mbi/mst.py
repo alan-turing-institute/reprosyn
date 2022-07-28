@@ -215,4 +215,4 @@ class MST(GeneratorFunc):
         super().save()
         with open(self.output_dir / "domain.json", "w") as outfile:
             # click.echo(f"Saving to config file to {p}")
-            json.dump(self.domain, outfile)
+            json.dump(self.domain.config, outfile)
