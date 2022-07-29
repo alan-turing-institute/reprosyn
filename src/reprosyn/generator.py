@@ -1,25 +1,39 @@
+import inspect
 import json
 import pathlib
+import warnings
 from os import path
 
 import click
 import pandas as pd
 
 
-def _basegenerate(gen):
-    pass
+def _base_generate_func(dataset, size):
+
+    return dataset
 
 
 class GeneratorFunc:
     """Base generator function class"""
 
-    generator = _basegenerate
+    generator = staticmethod(_base_generate_func)
 
     def __init__(self, dataset, output_dir, size=None, **kwargs):
         self.dataset = self.read_dataset(dataset)
         self.size = size or len(self.dataset)
-        self.options = kwargs
         self.output_dir = pathlib.Path(output_dir)
+        self.options = kwargs
+
+        self.check_generator()
+
+    def check_generator(self):
+
+        if inspect.ismethod(self.generator):
+            warnings.warn(
+                f"Class attribute `generator` of {type(self).__name__} is not "
+                "static. Either wrap in `staticmethod` or ensure there is a "
+                "leading argument for the instance in its definition."
+            )
 
     def read_dataset(self, dataset):
         if isinstance(dataset, pd.DataFrame):
@@ -39,7 +53,7 @@ class GeneratorFunc:
         pass
 
     def save(self):
-        self.output.to_csv(self.output_dir / "output.csv")
+        self.output.to_csv(self.output_dir / "output.csv", index=False)
 
 
 class Handler(object):
