@@ -1,5 +1,6 @@
-"""The main `click` command, providing a CLI."""
+"""The main `click` command, providing a CLI to `reprosyn.run()`."""
 
+import importlib
 import json
 import sys
 from io import StringIO
@@ -7,7 +8,8 @@ from os import path
 
 import click
 
-from reprosyn.generator import Handler
+from reprosyn import run
+from reprosyn.generator import GeneratorFunc, Handler, wrap_generator
 from reprosyn.methods.mbi.cli import mstcommand
 
 
@@ -92,6 +94,58 @@ def main(ctx, **kwargs):
 
 
 main.add_command(mstcommand)
+
+
+@main.command(
+    "custom",
+    short_help="A custom generator at /path/to/module.py:generator",
+)
+@click.argument("location", type=click.STRING)
+@wrap_generator
+def custom(h, location):
+    """Find, load and run a custom generator.
+
+    Parameters
+    ----------
+    location : str
+        Location of generator class. Given in the form
+        `/path/to/module.py:generator`. The module path can be relative.
+
+    Returns
+    -------
+    output : dataframe
+        The dataframe-like object stored in `generator.output`.
+
+    Raises
+    ------
+    ValueError
+        If `location` does not point to a subclass of
+        `reprosyn.generator.GeneratorFunc`.
+    """
+
+    gen = _load_generator_class(location)
+
+    if not issubclass(gen, GeneratorFunc):
+        raise ValueError("location must specify a GeneratorFunc subclass.")
+
+    generator = run(gen, dataset=h.file, output_dir=h.out, size=h.size)
+
+    return generator.output
+
+
+def _load_generator_class(location):
+    """Find and load a generator class from a `path:name` string."""
+
+    path, name = location.split(":")
+
+    spec = importlib.util.spec_from_file_location("__main__", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    gen = getattr(module, name)
+
+    return gen
+
 
 if __name__ == "__main__":
     main()
