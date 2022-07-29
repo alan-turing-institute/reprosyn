@@ -21,7 +21,7 @@ from reprosyn.generator import GeneratorFunc
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
 
 
-def mst(self, data, epsilon, delta, rows):
+def mst(data, epsilon, delta, rows):
     rho = cdp_rho(epsilon, delta)
     sigma = np.sqrt(3 / (2 * rho))
     cliques = [(col,) for col in data.domain]
@@ -190,7 +190,7 @@ def recode_as_original(data, mapping):
 class MST(GeneratorFunc):
     """Generator class for the MST mechanism."""
 
-    generator = mst
+    generator = staticmethod(mst)
 
     def preprocess(self):
         df, mapping = recode_as_category(self.dataset)
@@ -217,4 +217,4 @@ class MST(GeneratorFunc):
     def save(self):
         super().save()
         with open(self.output_dir / "domain.json", "w") as outfile:
-            json.dump(self.domain.config, outfile)
+            json.dump(self.domain, outfile)
