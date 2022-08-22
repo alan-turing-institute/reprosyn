@@ -19,6 +19,7 @@ jax = "^0.3.16"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+jupyter = "^1.0.0"
 
 [tool.poetry.scripts]
 rsyn = "reprosyn.cli:main"
