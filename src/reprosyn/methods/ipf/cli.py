@@ -1,6 +1,7 @@
 import click
-from reprosyn.methods.ipf.ipf import ipfmain
+
 from reprosyn.generator import wrap_generator
+from reprosyn.methods.ipf.ipf import IPF
 
 
 @click.command(
@@ -9,7 +10,7 @@ from reprosyn.generator import wrap_generator
     options_metavar="[GENERATOR OPTIONS]",
 )
 @wrap_generator
-def ipfcommand(sdg, **kwargs):
+def ipfcommand(h, **kwargs):
     """Runs IPF on --file or STDIN
 
     See rsyn --help for general use.
@@ -19,8 +20,9 @@ def ipfcommand(sdg, **kwargs):
     rsyn --file census.csv mst  \n
     rsyn ipf < census.csv
     """
-    output = ipfmain(data=sdg.file, size=sdg.size, args=kwargs)
-    return output
+    generator = IPF(dataset=h.file, size=h.size, output_dr=h.out, **kwargs)
+    generator.run()
+    return generator.output
 
 
 if __name__ == "__main__":

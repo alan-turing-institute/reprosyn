@@ -19,9 +19,12 @@ from mbi import Dataset, Domain, FactoredInference
 from scipy import sparse
 from scipy.special import logsumexp
 
-from reprosyn.generator import GeneratorFunc
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
-from reprosyn.generator import recode_as_category, recode_as_original
+from reprosyn.generator import (
+    GeneratorFunc,
+    recode_as_category,
+    recode_as_original,
+)
 
 """
 This is a generalization of the winning mechanism from the
@@ -167,9 +170,6 @@ def get_domain_dict(data):
 class MST(GeneratorFunc):
     """Generator class for the MST mechanism."""
 
-    # How should I specify defaults so that it is convenient for
-    # the click parser and the python import?
-
     generator = staticmethod(mst)
 
     def __init__(self, domain=None, epsilon=1.0, delta=1e-9, degree=2, **kw):
@@ -191,7 +191,6 @@ class MST(GeneratorFunc):
         self.dataset = Dataset(df, Domain.fromdict(self.domain))
 
     def generate(self):
-        # TODO: inspect signatuere check for size as parameter
         self.output = self.generator(
             self.dataset,
             self.params["epsilon"],

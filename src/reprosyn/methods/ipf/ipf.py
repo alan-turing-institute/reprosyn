@@ -4,7 +4,11 @@ import random as rnd
 from tqdm import tqdm
 import string
 
-from reprosyn.generator import recode_as_category, recode_as_original
+from reprosyn.generator import (
+    GeneratorFunc,
+    recode_as_category,
+    recode_as_original,
+)
 
 
 def get_count_matrix(X):
@@ -39,7 +43,8 @@ def get_margin_grids(X, count_matrix, known_marginals):
 
     dim_set = set(range(X.shape[0]))
     margin_grids = [
-        (x, count_matrix.sum(axis=tuple(dim_set - set(x)))) for x in known_marginals
+        (x, count_matrix.sum(axis=tuple(dim_set - set(x))))
+        for x in known_marginals
     ]
     return margin_grids
 
@@ -77,7 +82,9 @@ def sinkhorn_tensor(
                 eps + run_tensor.sum(axis=tuple(dim_set - set(margin_ind[0])))
             )
             run_tensor = np.einsum(
-                _einsum_construct(margin_ind[0], len(dim_set)), run_tensor, factors
+                _einsum_construct(margin_ind[0], len(dim_set)),
+                run_tensor,
+                factors,
             )
 
         err = abs(run_tensor - initial_tensor).sum()
@@ -98,7 +105,9 @@ def sampler(N, probability_array):
         for dim in range(len(dim_vec)):
             newsample = rnd.choices(
                 range(probability_array.shape[dim]),
-                weights=temp_array.sum(axis=tuple(range(1, len(temp_array.shape)))),
+                weights=temp_array.sum(
+                    axis=tuple(range(1, len(temp_array.shape)))
+                ),
             )[0]
             temp_array = temp_array[newsample]
             samplist.append(newsample)
@@ -106,32 +115,46 @@ def sampler(N, probability_array):
     return np.array(outlist).T
 
 
-def ipfmain(data, size, args, known_marginals=None):
+def ipf(data, marginals, counts, support, size, iter_tolerance=1e-3 * 1000):
 
-    df = pd.read_csv(data)
-    df, mapping = recode_as_category(df)
+    margin_grids = get_margin_grids(data, counts, marginals)
 
-    if not size:
-        size = len(df)
-
-    if not known_marginals:
-        known_marginals = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 4), (2, 4)]
-
-    data = np.array(df).T
-
-    count_matrix = get_count_matrix(data)
-
-    margin_grids = get_margin_grids(data, count_matrix, known_marginals)
-    support_matrix = (count_matrix * 0 + 1).astype(
-        int
-    )  # Constant matrix of correct shape
-
-    approx_count = sinkhorn_tensor(
-        support_matrix, margin_grids, iter_tolerance=1e-3 * 1000
-    )
+    approx_count = sinkhorn_tensor(support, margin_grids, iter_tolerance)
 
     approx_sample = sampler(size, approx_count)
 
-    output = recode_as_original(pd.DataFrame(approx_sample, cols=df.columns), mapping)
+    return approx_sample
 
-    return output
+
+class IPF(GeneratorFunc):
+    """Generator class for Iterative Proportional Fitting"""
+
+    generator = staticmethod(ipf)
+
+    def __init__(self, marginals=[(0, 1), (3, 4), (1, 2, 3)], **kw):
+        parameters = {
+            "marginals": marginals,
+        }
+        super().__init__(**kw, **parameters)
+
+    def preprocess(self):
+        self.dataset, self.mapping = recode_as_category(self.dataset)
+
+        data = np.array(self.dataset).T
+        self.count_matrix = get_count_matrix(data)
+        self.support_matrix = (self.count_matrix * 0 + 1).astype(int)
+
+    def generate(self):
+        data = np.array(self.dataset).T
+        self.output = self.generator(
+            data,
+            self.count_matrix,
+            self.support_matrix,
+            self.params["marginals"],
+            self.size,
+        )
+
+    def postprocess(self):
+        self.output = recode_as_original(
+            pd.DataFrame(self.output, cols=self.dataset.columns), self.mapping
+        )
