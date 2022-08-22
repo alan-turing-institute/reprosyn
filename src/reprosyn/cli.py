@@ -1,4 +1,14 @@
+<<<<<<< HEAD
 """The main `click` command, providing a CLI."""
+=======
+import click
+import sys
+from os import path, getcwd
+from datetime import datetime
+
+
+from reprosyn.generator import Generator
+>>>>>>> ee46d55 (add ipfcommand to gorup)
 
 import json
 import sys
@@ -9,6 +19,10 @@ import click
 
 from reprosyn.generator import Handler
 from reprosyn.methods.mbi.cli import mstcommand
+
+# commands
+from reprosyn.methods.mbi.cli import mstcommand
+from reprosyn.methods.ipf.cli import ipfcommand
 
 
 @click.group(
@@ -92,6 +106,7 @@ def main(ctx, **kwargs):
 
 
 main.add_command(mstcommand)
+main.add_command(ipfcommand)
 
 if __name__ == "__main__":
     main()
