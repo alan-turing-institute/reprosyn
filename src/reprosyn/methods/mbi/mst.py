@@ -10,6 +10,8 @@ selection.
 import itertools
 import json
 
+import numpy as np
+import pandas as pd
 import networkx as nx
 import numpy as np
 from disjoint_set import DisjointSet
@@ -19,6 +21,14 @@ from scipy.special import logsumexp
 
 from reprosyn.generator import GeneratorFunc
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
+from reprosyn.generator import recode_as_category, recode_as_original
+
+"""
+This is a generalization of the winning mechanism from the
+2018 NIST Differential Privacy Synthetic Data Competition.
+Unlike the original implementation, this one can work for any discrete dataset,
+and does not rely on public provisional data for measurement selection.
+"""
 
 
 def mst(data, epsilon, delta, rows):
@@ -152,39 +162,6 @@ def reverse_data(data, supports):
 def get_domain_dict(data):
 
     return dict(zip(data.columns, data.nunique()))
-
-
-def recode_as_category(data):
-    """Accepts list of column names to record as category
-
-    Returns
-    -------
-    Pandas dataframe recoded as categorical integers
-
-    Mapping dictionary with columns as keys and a lookup dict as values
-    """
-    mapping = {}
-    for col in data.columns:
-        orig = data[col]
-        data[col] = data[col].astype("category").cat.codes
-        mapping[col] = dict(zip(data[col], orig))
-
-    return data, mapping
-
-
-def recode_as_original(data, mapping):
-    """Given a dataframe encoded as categorical codes and a mapping
-    dictionary, retrieves original values
-
-    Returns
-    -------
-    Pandas dataframe mapped to original values.
-    """
-
-    for col in data.columns:
-        data[col] = data[col].apply(lambda x: mapping[col][x])
-
-    return data
 
 
 class MST(GeneratorFunc):
