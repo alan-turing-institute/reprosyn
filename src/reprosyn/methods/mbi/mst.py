@@ -190,23 +190,35 @@ def recode_as_original(data, mapping):
 class MST(GeneratorFunc):
     """Generator class for the MST mechanism."""
 
+    # How should I specify defaults so that it is convenient for
+    # the click parser and the python import?
+
     generator = staticmethod(mst)
+
+    def __init__(self, domain=None, epsilon=1.0, delta=1e-9, degree=2, **kw):
+        parameters = {
+            "domain": domain,
+            "epsilon": epsilon,
+            "delta": delta,
+            "degree": degree,
+        }
+        super().__init__(**kw, **parameters)
 
     def preprocess(self):
         df, mapping = recode_as_category(self.dataset)
         self.mapping = mapping
 
         # domain could be json
-        self.domain = self.options["domain"] or get_domain_dict(df)
+        self.domain = self.params["domain"] or get_domain_dict(df)
 
         self.dataset = Dataset(df, Domain.fromdict(self.domain))
 
     def generate(self):
-        # inspect signatuere check for size as parameter
+        # TODO: inspect signatuere check for size as parameter
         self.output = self.generator(
             self.dataset,
-            self.options["epsilon"],
-            self.options["delta"],
+            self.params["epsilon"],
+            self.params["delta"],
             self.size,
         )
         return self.output
@@ -214,7 +226,7 @@ class MST(GeneratorFunc):
     def postprocess(self):
         self.output = recode_as_original(self.output.df, self.mapping)
 
-    def save(self):
+    def save(self, domain_fn="domain.json"):
         super().save()
-        with open(self.output_dir / "domain.json", "w") as outfile:
+        with open(self.output_dir / domain_fn, "w") as outfile:
             json.dump(self.domain, outfile)
