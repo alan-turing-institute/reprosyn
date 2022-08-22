@@ -67,6 +67,9 @@ class GeneratorFunc:
         self.postprocess()
         self.save()
 
+    def get_parameters(self):
+        return self.params
+
 
 class Handler(object):
     def __init__(
