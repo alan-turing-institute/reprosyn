@@ -1,4 +1,4 @@
-def run(gen, dataset, output_dir, size, **kwargs):
+def run(gen, dataset=None, size=None, output_dir="./", **kwargs):
     generator = gen(
         dataset=dataset, output_dir=output_dir, size=size, **kwargs
     )

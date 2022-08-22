@@ -57,9 +57,8 @@ def mstcommand(h, **kwargs):
     $ rsyn --file census.csv mst
     $ rsyn mst < census.csv
     """
-    generator = run(
-        MST, dataset=h.file, size=h.size, output_dir=h.out, **kwargs
-    )
+    generator = MST(dataset=h.file, size=h.size, output_dir=h.out, **kwargs)
+    generator.run()
     return generator.output
 
 

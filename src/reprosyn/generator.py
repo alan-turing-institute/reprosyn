@@ -18,11 +18,17 @@ class GeneratorFunc:
 
     generator = staticmethod(_base_generate_func)
 
-    def __init__(self, dataset, output_dir, size=None, **kwargs):
+    def __init__(
+        self,
+        dataset="https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv",
+        output_dir="./",
+        size=None,
+        **kwargs,
+    ):
         self.dataset = self.read_dataset(dataset)
         self.size = size or len(self.dataset)
         self.output_dir = pathlib.Path(output_dir)
-        self.options = kwargs
+        self.params = kwargs
 
         self.check_generator()
 
@@ -46,7 +52,7 @@ class GeneratorFunc:
 
     def generate(self):
         # inspect signatuere check for size as parameter
-        self.output = self.generator(self.dataset, self.size, **self.options)
+        self.output = self.generator(self.dataset, self.size, **self.params)
         return self.output
 
     def postprocess(self):
@@ -54,6 +60,12 @@ class GeneratorFunc:
 
     def save(self):
         self.output.to_csv(self.output_dir / "output.csv", index=False)
+
+    def run(self):
+        self.preprocess()
+        self.generate()
+        self.postprocess()
+        self.save()
 
 
 class Handler(object):
@@ -100,3 +112,15 @@ def wrap_generator(func):
                 func.main(["--help"])
 
     return wrapper
+
+
+def option_builder(func, options):
+
+    for k, v in options:
+        func = click.option(
+            f"--{k}",
+            type=v["type"],
+            default=v["default"],
+            help=v["help"],
+        )(func)
+    return func
