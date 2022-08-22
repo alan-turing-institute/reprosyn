@@ -29,6 +29,7 @@ class GeneratorFunc:
         self.size = size or len(self.dataset)
         self.output_dir = pathlib.Path(output_dir)
         self.params = kwargs
+        self.output = None
 
         self.check_generator()
 
