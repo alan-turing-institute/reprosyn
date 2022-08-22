@@ -1,16 +1,7 @@
 import click
-import json
-from reprosyn.methods.mbi.mst import mstmain
-from reprosyn.generator import wrap_generator
 
-# params = {}
-# params["dataset"] = "../data/adult.csv"
-# params["domain"] = "../data/adult-domain.json"
-# params["epsilon"] = 1.0
-# params["delta"] = 1e-9
-# params["degree"] = 2
-# params["num_marginals"] = None
-# params["max_cells"] = 10000
+from reprosyn.generator import wrap_generator
+from reprosyn.methods.mbi.mst import MST
 
 
 @click.command(
@@ -55,18 +46,19 @@ from reprosyn.generator import wrap_generator
 #     help="maximum number of cells for marginals in workload",
 # )
 @wrap_generator
-def mstcommand(sdg, **kwargs):
+def mstcommand(h, **kwargs):
     """Runs MST on --file or STDIN
 
     See rsyn --help for general use.
 
     Examples:
 
-    rsyn --file census.csv mst  \n
-    rsyn mst < census.csv
+    $ rsyn --file census.csv mst
+    $ rsyn mst < census.csv
     """
-    output = mstmain(dataset=sdg.file, size=sdg.size, args=kwargs)
-    return output.df
+    generator = MST(dataset=h.file, size=h.size, output_dir=h.out, **kwargs)
+    generator.run()
+    return generator.output
 
 
 if __name__ == "__main__":

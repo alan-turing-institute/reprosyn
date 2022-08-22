@@ -1,0 +1,4 @@
+[flake8]
+per-file-ignores =
+    src/reprosyn/methods/mbi/cdp2adp.py:E501
+    src/reprosyn/methods/mbi/mst.py:E731

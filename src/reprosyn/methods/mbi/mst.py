@@ -1,25 +1,27 @@
-import itertools
+"""MST
 
-import click
-import numpy as np
-import pandas as pd
+This is a generalization of the winning mechanism from the
+2018 NIST Differential Privacy Synthetic Data Competition.
+Unlike the original implementation, this one can work for any discrete
+dataset, and does not rely on public provisional data for measurement
+selection.
+"""
+
+import itertools
+import json
+
 import networkx as nx
+import numpy as np
 from disjoint_set import DisjointSet
-from reprosyn.methods.mbi.cdp2adp import cdp_rho
+from mbi import Dataset, Domain, FactoredInference
 from scipy import sparse
 from scipy.special import logsumexp
 
-from mbi import Dataset, Domain, FactoredInference
-
-"""
-This is a generalization of the winning mechanism from the
-2018 NIST Differential Privacy Synthetic Data Competition.
-Unlike the original implementation, this one can work for any discrete dataset,
-and does not rely on public provisional data for measurement selection.
-"""
+from reprosyn.generator import GeneratorFunc
+from reprosyn.methods.mbi.cdp2adp import cdp_rho
 
 
-def MST(data, epsilon, delta, rows):
+def mst(data, epsilon, delta, rows):
     rho = cdp_rho(epsilon, delta)
     sigma = np.sqrt(3 / (2 * rho))
     cliques = [(col,) for col in data.domain]
@@ -66,7 +68,9 @@ def compress_domain(data, measurements):
     return transform_data(data, supports), new_measurements, undo_compress_fn
 
 
-def exponential_mechanism(q, eps, sensitivity, prng=np.random, monotonic=False):
+def exponential_mechanism(
+    q, eps, sensitivity, prng=np.random, monotonic=False
+):
     coef = 1.0 if monotonic else 0.5
     scores = coef * eps / sensitivity * q
     probas = np.exp(scores - logsumexp(scores))
@@ -169,8 +173,8 @@ def recode_as_category(data):
 
 
 def recode_as_original(data, mapping):
-
-    """Given a dataframe encoded as categorical codes and a mapping dictionary, retrieves original values
+    """Given a dataframe encoded as categorical codes and a mapping
+    dictionary, retrieves original values
 
     Returns
     -------
@@ -183,46 +187,46 @@ def recode_as_original(data, mapping):
     return data
 
 
-def mstmain(dataset, size, args):
+class MST(GeneratorFunc):
+    """Generator class for the MST mechanism."""
 
-    """Runs mst on given data
+    # How should I specify defaults so that it is convenient for
+    # the click parser and the python import?
 
-    Returns
-    -------
-    Synthetic dataset of mbi type Dataset
-    """
-    # load data
+    generator = staticmethod(mst)
 
-    df = pd.read_csv(dataset)
-    df, mapping = recode_as_category(df)
+    def __init__(self, domain=None, epsilon=1.0, delta=1e-9, degree=2, **kw):
+        parameters = {
+            "domain": domain,
+            "epsilon": epsilon,
+            "delta": delta,
+            "degree": degree,
+        }
+        super().__init__(**kw, **parameters)
 
-    if not args["domain"]:
-        args["domain"] = get_domain_dict(df)
+    def preprocess(self):
+        df, mapping = recode_as_category(self.dataset)
+        self.mapping = mapping
 
-    data = Dataset(df, Domain.fromdict(args["domain"]))
+        # domain could be json
+        self.domain = self.params["domain"] or get_domain_dict(df)
 
-    # put temporary defaults in for now.
-    # num_marginals = None
-    # max_cells = 10000
-    # degree = 2
+        self.dataset = Dataset(df, Domain.fromdict(self.domain))
 
-    # workload = list(itertools.combinations(data.domain, degree))
-    # workload = [cl for cl in workload if data.domain.size(cl) <= max_cells]
-    # rng = np.random.default_rng()
-    # if num_marginals is not None:
-    #     workload = [
-    #         workload[i] for i in rng.choice(len(workload), num_marginals, replace=False)
-    #     ]
+    def generate(self):
+        # TODO: inspect signatuere check for size as parameter
+        self.output = self.generator(
+            self.dataset,
+            self.params["epsilon"],
+            self.params["delta"],
+            self.size,
+        )
+        return self.output
 
-    if not size:
-        size = len(df)
-    synth = MST(data, args["epsilon"], args["delta"], size)
+    def postprocess(self):
+        self.output = recode_as_original(self.output.df, self.mapping)
 
-    synth.df = recode_as_original(synth.df, mapping)
-
-    return synth
-
-
-if __name__ == "__main__":
-
-    mstmain()
+    def save(self, domain_fn="domain.json"):
+        super().save()
+        with open(self.output_dir / domain_fn, "w") as outfile:
+            json.dump(self.domain, outfile)

@@ -1,13 +1,14 @@
-import click
-import sys
-from os import path, getcwd
-from datetime import datetime
-
-from reprosyn.methods.mbi.cli import mstcommand
-from reprosyn.generator import Generator
+"""The main `click` command, providing a CLI."""
 
 import json
+import sys
 from io import StringIO
+from os import path
+
+import click
+
+from reprosyn.generator import Handler
+from reprosyn.methods.mbi.cli import mstcommand
 
 
 @click.group(
@@ -22,9 +23,9 @@ from io import StringIO
 )
 @click.option(
     "--out",
-    help="filepath to write output to, omit for STDOUT",
-    type=click.File("at"),
-    default=sys.stdout,
+    help="filepath to write output to",
+    type=click.Path(),
+    default=".",
 )
 @click.option(
     "--size",
@@ -46,12 +47,14 @@ from io import StringIO
     "--configstring",
     type=click.STRING,
     default="{}",
-    help="a string specifying configuration in a dictionary. Overrided by --configpath",
+    help="configuration string as a dictionary. Overrided by --configpath",
 )
 @click.option(
     "--configfolder",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
-    default=path.join(path.dirname(path.realpath(__file__)), "methods/config/"),
+    default=path.join(
+        path.dirname(path.realpath(__file__)), "methods/config/"
+    ),
     help="directory for method configs",
 )
 @click.pass_context
@@ -68,12 +71,13 @@ def main(ctx, **kwargs):
     census.csv > rsyn mst
     """
 
-    ctx.obj = Generator(**kwargs)
+    ctx.obj = Handler(**kwargs)
 
     if path.exists(ctx.obj.get_config_path()):
         if ctx.obj.generateconfig:
             click.confirm(
-                f"Config file exists at {ctx.obj.get_config_path()}, override?",
+                f"Config file exists at {ctx.obj.get_config_path()},"
+                " override?",
                 abort=True,
             )
         with click.open_file(ctx.obj.get_config_path(), "r") as f:
