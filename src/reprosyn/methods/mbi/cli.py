@@ -1,6 +1,5 @@
 import click
 
-from reprosyn import run
 from reprosyn.generator import wrap_generator
 from reprosyn.methods.mbi.mst import MST
 
