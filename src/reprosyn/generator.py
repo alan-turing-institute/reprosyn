@@ -118,13 +118,34 @@ def wrap_generator(func):
     return wrapper
 
 
-def option_builder(func, options):
+def recode_as_category(data):
+    """Recodes a dataset as categorical integers
 
-    for k, v in options:
-        func = click.option(
-            f"--{k}",
-            type=v["type"],
-            default=v["default"],
-            help=v["help"],
-        )(func)
-    return func
+    Returns
+    -------
+    Pandas dataframe recoded as categorical integers
+
+    Mapping dictionary with columns as keys and a lookup dict as values
+    """
+    mapping = {}
+    for col in data.columns:
+        orig = data[col]
+        data[col] = data[col].astype("category").cat.codes
+        mapping[col] = dict(zip(data[col], orig))
+
+    return data, mapping
+
+
+def recode_as_original(data, mapping):
+
+    """Given a dataframe encoded as categorical codes and a mapping dictionary, retrieves original values
+
+    Returns
+    -------
+    Pandas dataframe mapped to original values.
+    """
+
+    for col in data.columns:
+        data[col] = data[col].apply(lambda x: mapping[col][x])
+
+    return data

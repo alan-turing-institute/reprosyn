@@ -8,6 +8,7 @@ from os import path
 import click
 
 from reprosyn.generator import Handler
+from reprosyn.methods.ipf.cli import ipfcommand
 from reprosyn.methods.mbi.cli import mstcommand
 
 
@@ -92,6 +93,7 @@ def main(ctx, **kwargs):
 
 
 main.add_command(mstcommand)
+main.add_command(ipfcommand)
 
 if __name__ == "__main__":
     main()
