@@ -17,6 +17,7 @@ def get_count_matrix(X):
     Returns the counts of each feature category.
 
     X is a numpy array with shape (features, individuals).
+    Assumes that all the highest number category is represented in the dataset
     count_matrix is a numpy array with ndims = nfeatures and shape determined by the feature categories, e.g. (ncatg1, ncatg2,...)
     """
     count_matrix = np.zeros(
@@ -40,7 +41,6 @@ def get_margin_grids(X, count_matrix, known_marginals):
 
     margin_grids is list of len(known_marginals) with entries [known_marginals[i], ndarray]
     """
-
     dim_set = set(range(X.shape[0]))
     margin_grids = [
         (x, count_matrix.sum(axis=tuple(dim_set - set(x))))
@@ -51,10 +51,10 @@ def get_margin_grids(X, count_matrix, known_marginals):
 
 # Helper function to construct Einstein sum definition strings
 def _einsum_construct(ind, full_dim=5):
-    alpha = string.ascii_lowercase
-    string_pre = alpha[:full_dim] + ","
+    alpha = string.ascii_lowercase[:full_dim]
+    string_pre = alpha + ","
     string_mid = "".join([alpha[x] for x in ind])
-    string_end = "->abcde"
+    string_end = "->" + alpha
     return string_pre + string_mid + string_end
 
 
@@ -69,13 +69,11 @@ def sinkhorn_tensor(
     eps=1e-5,
     verbose=False,
 ):
-
     count = 0
     err = 1 + iter_tolerance
     while (count < max_iterations) and (err > iter_tolerance):
         run_tensor = initial_tensor + 0
         count += 1
-
         dim_set = set(range(len(initial_tensor.shape)))
         for margin_ind in marginals:
             factors = margin_ind[1] / (
@@ -131,16 +129,15 @@ class IPF(GeneratorFunc):
 
     generator = staticmethod(ipf)
 
-    def __init__(self, marginals=[(0, 1), (3, 4), (1, 2, 3)], **kw):
-        parameters = {
-            "marginals": marginals,
-        }
+    def __init__(self, marginals=[(0, 1), (0, 2), (1, 2, 3)], **kw):
+        parameters = {"marginals": marginals}
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
-        self.dataset, self.mapping = recode_as_category(self.dataset)
 
-        data = np.array(self.dataset).T
+        self.dataset, self.mapping = recode_as_category(self.dataset)
+        data = self.dataset.to_numpy().T
+
         self.count_matrix = get_count_matrix(data)
         self.support_matrix = (self.count_matrix * 0 + 1).astype(int)
 
@@ -148,13 +145,14 @@ class IPF(GeneratorFunc):
         data = np.array(self.dataset).T
         self.output = self.generator(
             data,
-            self.count_matrix,
-            self.support_matrix,
-            self.params["marginals"],
-            self.size,
+            marginals=self.params["marginals"],
+            counts=self.count_matrix,
+            support=self.support_matrix,
+            size=self.size,
         )
 
     def postprocess(self):
         self.output = recode_as_original(
-            pd.DataFrame(self.output, cols=self.dataset.columns), self.mapping
+            pd.DataFrame(self.output.T, columns=self.dataset.columns),
+            self.mapping,
         )
