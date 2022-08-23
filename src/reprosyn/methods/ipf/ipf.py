@@ -1,8 +1,9 @@
-import pandas as pd
-import numpy as np
 import random as rnd
-from tqdm import tqdm
 import string
+
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
 
 from reprosyn.generator import (
     GeneratorFunc,
@@ -130,6 +131,7 @@ class IPF(GeneratorFunc):
     generator = staticmethod(ipf)
 
     def __init__(self, marginals=[(0, 1), (0, 2), (1, 2, 3)], **kw):
+        # TODO: check that marginals are ordered tuples.
         parameters = {"marginals": marginals}
         super().__init__(**kw, **parameters)
 
@@ -138,6 +140,7 @@ class IPF(GeneratorFunc):
         self.dataset, self.mapping = recode_as_category(self.dataset)
         data = self.dataset.to_numpy().T
 
+        # TODO: To avoid hanging, check matrix size and warn if too much
         self.count_matrix = get_count_matrix(data)
         self.support_matrix = (self.count_matrix * 0 + 1).astype(int)
 
