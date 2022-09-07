@@ -51,7 +51,7 @@ def get_margin_grids(X, count_matrix, known_marginals):
 
 
 # Helper function to construct Einstein sum definition strings
-def _einsum_construct(ind, full_dim=5):
+def _einsum_construct(ind, full_dim):
     alpha = string.ascii_lowercase[:full_dim]
     string_pre = alpha + ","
     string_mid = "".join([alpha[x] for x in ind])
@@ -130,7 +130,7 @@ class IPF(GeneratorFunc):
 
     generator = staticmethod(ipf)
 
-    def __init__(self, marginals=[(0, 1), (0, 2), (1, 2, 3)], **kw):
+    def __init__(self, marginals=[(0, 1), (0, 2)], **kw):
         # TODO: check that marginals are ordered tuples.
         parameters = {"marginals": marginals}
         super().__init__(**kw, **parameters)
