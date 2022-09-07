@@ -33,5 +33,4 @@ jobs:
 
     - name: Test with pytest
       run: |
-        cd reprosyn
         python -m poetry run python -m pytest -v tests
