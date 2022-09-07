@@ -6,8 +6,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9]
-        poetry-version: [1.1.6]
+        python-version: [3.10.4]
+        poetry-version: [1.1.13]
 
     runs-on: ubuntu-latest
 
@@ -33,5 +33,5 @@ jobs:
 
     - name: Test with pytest
       run: |
-        cd prive
+        cd reprosyn
         python -m poetry run python -m pytest -v tests
