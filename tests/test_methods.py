@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-from reprosyn.methods import IPF, MST
+from reprosyn.methods import IPF, MST, CTGAN
 
 
 def choice(arr, n):
@@ -57,3 +57,9 @@ def test_ipf():
     )
     ipf.run()
     check_output(ipf.output)
+
+
+def test_ctgan():
+    ctgan = CTGAN(dataset=dummy.copy(), size=synth_size)
+    ctgan.run()
+    check_output(ctgan.output)

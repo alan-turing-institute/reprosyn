@@ -17,6 +17,7 @@ pandas = "^1.4.2"
 jaxlib = "^0.3.15"
 jax = "^0.3.16"
 tqdm = "^4.64.0"
+ctgan = {git = "https://github.com/alan-turing-institute/CTGAN.git", rev = "dependencies"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.3"

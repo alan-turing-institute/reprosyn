@@ -10,6 +10,7 @@ import click
 from reprosyn.generator import Handler
 from reprosyn.methods.ipf.cli import ipfcommand
 from reprosyn.methods.mbi.cli import mstcommand
+from reprosyn.methods.ctgan.cli import ctgancommand
 
 
 @click.group(
@@ -94,6 +95,7 @@ def main(ctx, **kwargs):
 
 main.add_command(mstcommand)
 main.add_command(ipfcommand)
+main.add_command(ctgancommand)
 
 if __name__ == "__main__":
     main()
