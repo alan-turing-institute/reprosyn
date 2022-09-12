@@ -2,3 +2,4 @@
 
 from reprosyn.methods.ipf.ipf import IPF
 from reprosyn.methods.mbi.mst import MST
+from reprosyn.methods.ctgan.ctgan import CTGAN
