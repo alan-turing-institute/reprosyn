@@ -26,12 +26,18 @@ Args:
 """
 
 
-def get_metadata(dataset):
+def get_metadata(metadata):
 
     # TODO: for now, just do everything as categorical. Need to edit to pick up data type from columns
     meta = {}
     meta["columns"] = [
-        {"name": col, "type": "categorical"} for col in dataset.columns
+        {
+            "name": col["name"],
+            "type": "categorical",
+            "size": len(col["representation"]),
+            "i2s": col["representation"],
+        }
+        for col in metadata
     ]
     return meta
 
@@ -65,7 +71,7 @@ class CTGAN(GeneratorFunc):
 
     def preprocess(self):
 
-        self.meta = get_metadata(self.dataset)
+        self.meta = get_metadata(self.metadata)
 
     def generate(self, refit=False):
 

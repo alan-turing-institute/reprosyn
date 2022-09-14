@@ -101,14 +101,18 @@ def get_domain_dict(data):
     return dict(zip(data.columns, data.nunique()))
 
 
+def domain_from_metadata(metadata: list[dict]):
+
+    return {col["name"]: len(col["representation"]) for col in metadata}
+
+
 class PRIVBAYES(GeneratorFunc):
     """Generator class for the MST mechanism."""
 
     generator = staticmethod(privbayes)
 
-    def __init__(self, domain=None, epsilon=1.0, seed=0, **kw):
+    def __init__(self, epsilon=1.0, seed=0, **kw):
         parameters = {
-            "domain": domain,
             "epsilon": epsilon,
             "seed": seed,
         }
@@ -119,7 +123,7 @@ class PRIVBAYES(GeneratorFunc):
         self.mapping = mapping
 
         # domain could be json
-        self.domain = self.params["domain"] or get_domain_dict(df)
+        self.domain = domain_from_metadata(self.metadata)
 
         self.dataset = Dataset(df, Domain.fromdict(self.domain))
 
