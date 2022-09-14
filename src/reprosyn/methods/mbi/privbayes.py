@@ -3,7 +3,7 @@ import json
 
 import numpy as np
 import pandas as pd
-import privBayesSelect
+import privBayesSelect  # should be ektelo.algorithm.privbayes, but I'm struggling with using cython and poetry.
 from ektelo.matrix import Identity
 from mbi import Dataset, Domain, Factor
 
