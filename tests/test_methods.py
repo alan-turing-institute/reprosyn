@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-from reprosyn.methods import IPF, MST, CTGAN
+from reprosyn.methods import IPF, MST, CTGAN, PRIVBAYES
 
 
 def choice(arr, n):
@@ -63,3 +63,9 @@ def test_ctgan():
     ctgan = CTGAN(dataset=dummy.copy(), size=synth_size)
     ctgan.run()
     check_output(ctgan.output)
+
+
+def test_privbayes():
+    pb = PRIVBAYES(dataset=dummy.copy(), size=synth_size)
+    pb.run()
+    check_output(pb.output)
