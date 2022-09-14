@@ -167,14 +167,18 @@ def get_domain_dict(data):
     return dict(zip(data.columns, data.nunique()))
 
 
+def domain_from_metadata(metadata: list[dict]):
+
+    return {col["name"]: len(col["representation"]) for col in metadata}
+
+
 class MST(GeneratorFunc):
     """Generator class for the MST mechanism."""
 
     generator = staticmethod(mst)
 
-    def __init__(self, domain=None, epsilon=1.0, delta=1e-9, degree=2, **kw):
+    def __init__(self, epsilon=1.0, delta=1e-9, degree=2, **kw):
         parameters = {
-            "domain": domain,
             "epsilon": epsilon,
             "delta": delta,
             "degree": degree,
@@ -186,7 +190,7 @@ class MST(GeneratorFunc):
         self.mapping = mapping
 
         # domain could be json
-        self.domain = self.params["domain"] or get_domain_dict(df)
+        self.domain = domain_from_metadata(self.metadata)
 
         self.dataset = Dataset(df, Domain.fromdict(self.domain))
 

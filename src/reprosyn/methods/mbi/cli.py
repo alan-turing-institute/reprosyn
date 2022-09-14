@@ -11,12 +11,6 @@ from reprosyn.methods.mbi.privbayes import PRIVBAYES
     options_metavar="[GENERATOR OPTIONS]",
 )
 @click.option(
-    "--domain",
-    type=click.File(),
-    default=None,
-    help="domain to use, default to get_domain_dict()",
-)
-@click.option(
     "--epsilon",
     type=float,
     default=1.0,
@@ -57,7 +51,13 @@ def mstcommand(h, **kwargs):
     $ rsyn --file census.csv mst
     $ rsyn mst < census.csv
     """
-    generator = MST(dataset=h.file, size=h.size, output_dir=h.out, **kwargs)
+    generator = MST(
+        dataset=h.file,
+        metadata=h.metadata,
+        size=h.size,
+        output_dir=h.out,
+        **kwargs
+    )
     generator.run()
     return generator.output
 
@@ -69,12 +69,6 @@ def mstcommand(h, **kwargs):
     "privbayes",
     short_help="Uses DP Bayesian networks",
     options_metavar="[GENERATOR OPTIONS]",
-)
-@click.option(
-    "--domain",
-    type=click.File(),
-    default=None,
-    help="domain to use, default to get_domain_dict()",
 )
 @click.option(
     "--epsilon",
@@ -100,7 +94,11 @@ def pbcommand(h, **kwargs):
     $ rsyn privbayes < census.csv
     """
     generator = PRIVBAYES(
-        dataset=h.file, size=h.size, output_dir=h.out, **kwargs
+        dataset=h.file,
+        metadata=h.metadata,
+        size=h.size,
+        output_dir=h.out,
+        **kwargs
     )
     generator.run()
     return generator.output
