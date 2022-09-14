@@ -81,6 +81,6 @@ def test_ipf():
 
 
 def test_ctgan():
-    ctgan = CTGAN(dataset=dummy.copy(), size=synth_size)
+    ctgan = CTGAN(dataset=dummy.copy(), metadata=metadata, size=synth_size)
     ctgan.run()
     check_output(ctgan.output)
