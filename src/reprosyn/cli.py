@@ -59,6 +59,12 @@ from reprosyn.methods.ctgan.cli import ctgancommand
     ),
     help="directory for method configs",
 )
+@click.option(
+    "--metadata",
+    type=click.File(),
+    default=None,
+    help="domain to use, in privacy toolbox format, defaults to census",
+)
 @click.pass_context
 def main(ctx, **kwargs):
     """ "A cli tool synthesising the 1% census"

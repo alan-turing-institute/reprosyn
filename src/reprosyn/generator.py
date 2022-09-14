@@ -21,11 +21,17 @@ class GeneratorFunc:
     def __init__(
         self,
         dataset="https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv",
+        metadata=None,
         output_dir="./",
         size=None,
         **kwargs,
     ):
         self.dataset = self.read_dataset(dataset)
+        self.metadata = (
+            metadata
+            or "https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json"
+        )
+
         self.size = size or len(self.dataset)
         self.output_dir = pathlib.Path(output_dir)
         self.params = kwargs
@@ -49,6 +55,7 @@ class GeneratorFunc:
             return pd.read_csv(dataset)
 
     def preprocess(self):
+        """Need to encode domain data into method's format"""
         pass
 
     def generate(self):
@@ -82,6 +89,7 @@ class Handler(object):
         configpath=None,
         configfolder=None,
         configstring=None,
+        metadata=None,
     ):
         self.file = file
         self.out = out
@@ -90,6 +98,7 @@ class Handler(object):
         self.configpath = configpath
         self.configfolder = configfolder
         self.configstring = configstring
+        self.metadata = metadata
 
     def get_config_path(self):
         if self.configpath != "-":
