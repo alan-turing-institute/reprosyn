@@ -17,12 +17,22 @@ def choice(arr, n):
 
 
 rows = 100
-names = ["A", "B"]
-domains = [["a", "b", "c"], np.arange(5)]
+metadata = [
+    {"name": "A", "type": "finite", "representation": ["a", "b", "c"]},
+    {
+        "name": "B",
+        "type": "finite",
+        "representation": ["0", "1", "2", "3", "4"],
+    },
+]
+
 
 dummy = pd.DataFrame.from_dict(
-    {n: choice(d, rows) for n, d in zip(names, domains)}
+    {c["name"]: choice(c["representation"], rows) for c in metadata}
 )
+
+names = [m["name"] for m in metadata]
+domains = [m["representation"] for m in metadata]
 
 synth_size = 50
 epsilon = 1
@@ -43,9 +53,20 @@ def check_output(data):
 
 
 def test_mst():
-    mst = MST(dataset=dummy.copy(), size=synth_size, epsilon=epsilon)
+    mst = MST(
+        dataset=dummy.copy(),
+        metadata=metadata,
+        size=synth_size,
+        epsilon=epsilon,
+    )
     mst.run()
     check_output(mst.output)
+
+
+def test_privbayes():
+    pb = PRIVBAYES(dataset=dummy.copy(), metadata=metadata, size=synth_size)
+    pb.run()
+    check_output(pb.output)
 
 
 def test_ipf():
@@ -63,9 +84,3 @@ def test_ctgan():
     ctgan = CTGAN(dataset=dummy.copy(), size=synth_size)
     ctgan.run()
     check_output(ctgan.output)
-
-
-def test_privbayes():
-    pb = PRIVBAYES(dataset=dummy.copy(), size=synth_size)
-    pb.run()
-    check_output(pb.output)
