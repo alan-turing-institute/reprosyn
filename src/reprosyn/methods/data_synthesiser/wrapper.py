@@ -60,7 +60,6 @@ class DS_BAYNET(GeneratorFunc):
 
     def preprocess(self):
 
-        # self.dataset, self.mapping = recode_as_category(self.dataset)
         self.domain = get_metadata(self.metadata)
 
     def generate(self, refit=False):
@@ -72,6 +71,29 @@ class DS_BAYNET(GeneratorFunc):
         self.output = self.gen.generate_samples(self.size)
 
 
-# def postprocess(self):
+class DS_PRIVBAYES(GeneratorFunc):
+    def __init__(
+        self, histogram_bins=10, degree=1, epsilon=1, seed=None, **kw
+    ):
+        parameters = {
+            "histogram_bins": histogram_bins,
+            "degree": degree,
+            "seed": seed,
+            "epsilon": epsilon,
+        }
 
-#    self.output = recode_as_original(self.output, self.mapping)
+        self.gen = None
+
+        super().__init__(**kw, **parameters)
+
+    def preprocess(self):
+
+        self.domain = get_metadata(self.metadata)
+
+    def generate(self, refit=False):
+
+        if (not self.gen) or refit:
+            self.gen = PrivBayes(self.domain, **self.params)
+            self.gen.fit(self.dataset)
+
+        self.output = self.gen.generate_samples(self.size)
