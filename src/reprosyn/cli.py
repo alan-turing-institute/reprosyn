@@ -11,6 +11,7 @@ from reprosyn.generator import Handler
 from reprosyn.methods.ipf.cli import ipfcommand
 from reprosyn.methods.mbi.cli import mstcommand, pbcommand
 from reprosyn.methods.ctgan.cli import ctgancommand
+from reprosyn.methods.data_synthesiser.cli import indhist, baynet, ds_privbayes
 
 
 @click.group(
@@ -103,6 +104,9 @@ main.add_command(mstcommand)
 main.add_command(pbcommand)
 main.add_command(ipfcommand)
 main.add_command(ctgancommand)
+main.add_command(indhist)
+main.add_command(baynet)
+main.add_command(ds_privbayes)
 
 if __name__ == "__main__":
     main()
