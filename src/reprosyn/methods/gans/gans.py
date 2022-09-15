@@ -8,9 +8,10 @@ from reprosyn.generator import (
 )
 
 from ctgan import CTGANSynthesizer
+from reprosyn.methods.gans.pate_gan import PateGan
 
 """
-Args:
+CTGAN Args:
     embedding_dim (int):
         Size of the random sample passed to the Generator. Defaults to 128.
     gen_dim (tuple or list of ints):
@@ -26,14 +27,14 @@ Args:
 """
 
 
-def get_metadata(metadata):
+def get_metadata(metadata, col_type="categorical"):
 
     # TODO: for now, just do everything as categorical. Need to edit to pick up data type from columns
     meta = {}
     meta["columns"] = [
         {
             "name": col["name"],
-            "type": "categorical",
+            "type": col_type,
             "size": len(col["representation"]),
             "i2s": col["representation"],
         }
@@ -80,3 +81,43 @@ class CTGAN(GeneratorFunc):
             self.ctgan.fit(self.dataset, self.meta)
 
         self.output = self.ctgan.sample(self.size)
+
+
+class PATEGAN(GeneratorFunc):
+    """Generator class for PATEGAN"""
+
+    def __init__(
+        self,
+        epsilon=1,
+        delta=1e-5,
+        num_teachers=10,
+        n_iters=100,
+        batch_size=128,
+        learning_rate=1e-4,
+        **kw
+    ):
+
+        parameters = {
+            "epsilon": epsilon,
+            "delta": delta,
+            "num_teachers": num_teachers,
+            "n_iters": n_iters,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
+        }
+
+        self.gen = None
+
+        super().__init__(**kw, **parameters)
+
+    def preprocess(self):
+
+        self.meta = get_metadata(self.metadata, col_type="Categorical")
+
+    def generate(self, refit=False):
+
+        if (not self.gen) or refit:
+            self.gen = PateGan(self.meta, **self.params)
+            self.gen.fit(self.dataset)
+
+        self.output = self.gen.generate_samples(self.size)

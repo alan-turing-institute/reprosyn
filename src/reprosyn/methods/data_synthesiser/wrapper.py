@@ -1,8 +1,4 @@
-from reprosyn.generator import (
-    GeneratorFunc,
-    recode_as_category,
-    recode_as_original,
-)
+from reprosyn.generator import GeneratorFunc
 
 from .data_synthesiser import IndependentHistogram, BayesianNet, PrivBayes
 
