@@ -48,7 +48,7 @@ dummy = pd.DataFrame.from_dict(
 names = [m["name"] for m in metadata]
 domains = [m["representation"] for m in metadata]
 
-synth_size = 50
+synth_size = 200  # enough so domain is covered
 epsilon = 1
 
 
