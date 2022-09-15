@@ -10,7 +10,7 @@ import click
 from reprosyn.generator import Handler
 from reprosyn.methods.ipf.cli import ipfcommand
 from reprosyn.methods.mbi.cli import mstcommand, pbcommand
-from reprosyn.methods.ctgan.cli import ctgancommand
+from reprosyn.methods.gans.cli import ctgancommand, pategan
 from reprosyn.methods.data_synthesiser.cli import indhist, baynet, ds_privbayes
 
 
@@ -107,6 +107,7 @@ main.add_command(ctgancommand)
 main.add_command(indhist)
 main.add_command(baynet)
 main.add_command(ds_privbayes)
+main.add_command(pategan)
 
 if __name__ == "__main__":
     main()

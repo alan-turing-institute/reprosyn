@@ -6,6 +6,7 @@ from reprosyn.methods import (
     IPF,
     MST,
     CTGAN,
+    PATEGAN,
     PRIVBAYES,
     DS_INDHIST,
     DS_BAYNET,
@@ -31,6 +32,11 @@ metadata = [
         "name": "B",
         "type": "finite",
         "representation": ["0", "1", "2", "3", "4"],
+    },
+    {
+        "name": "C",
+        "type": "finite",
+        "representation": ["one", "two", "three"],
     },
 ]
 
@@ -109,6 +115,17 @@ def test_DS_BAYNET():
 def test_DS_PRIVBAYES():
     gen = DS_PRIVBAYES(
         dataset=dummy.copy(), metadata=metadata, size=synth_size
+    )
+    gen.run()
+    check_output(gen.output)
+
+
+def test_PATEGAN():
+    gen = PATEGAN(
+        dataset=dummy.copy(),
+        metadata=metadata,
+        size=synth_size,
+        batch_size=100,
     )
     gen.run()
     check_output(gen.output)

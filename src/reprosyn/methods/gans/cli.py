@@ -1,7 +1,7 @@
 import click
 
 from reprosyn.generator import wrap_generator
-from reprosyn.methods.ctgan.ctgan import CTGAN
+from reprosyn.methods.gans.gans import CTGAN, PATEGAN
 
 
 @click.command(
@@ -59,6 +59,53 @@ def ctgancommand(h, **kwargs):
     rsyn ctgan < census.csv
     """
     generator = CTGAN(dataset=h.file, size=h.size, output_dir=h.out, **kwargs)
+    generator.run()
+    return generator.output
+
+
+# --------------------------------------------------------------------
+@click.command(
+    "pategan",
+    short_help="PATEGAN...",
+    options_metavar="[GENERATOR OPTIONS]",
+)
+@click.option(
+    "--epsilon",
+    type=float,
+    default=1.0,
+    help="Privacy parameter",
+)
+@click.option(
+    "--delta",
+    type=float,
+    default=1e-5,
+)
+@click.option(
+    "--num_teachers",
+    type=int,
+    default=10,
+)
+@click.option(
+    "--n_iters",
+    type=int,
+    default=100,
+)
+@click.option(
+    "--batch_size",
+    type=int,
+    default=128,
+)
+@click.option(
+    "--learning_rate",
+    type=float,
+    default=1e-4,
+)
+@wrap_generator
+def pategan(h, **kwargs):
+
+    generator = PATEGAN(
+        dataset=h.file, size=h.size, output_dir=h.out, **kwargs
+    )
     generator.run()
     return generator.output
 
