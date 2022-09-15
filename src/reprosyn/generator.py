@@ -1,5 +1,6 @@
 import inspect
 import json
+import requests
 import pathlib
 import warnings
 from os import path
@@ -11,6 +12,13 @@ import pandas as pd
 def _base_generate_func(dataset, size):
 
     return dataset
+
+
+def load_json(fname):
+
+    resp = requests.get(fname)
+    data = json.loads(resp.text)
+    return data
 
 
 class GeneratorFunc:
@@ -27,9 +35,8 @@ class GeneratorFunc:
         **kwargs,
     ):
         self.dataset = self.read_dataset(dataset)
-        self.metadata = (
-            metadata
-            or "https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json"
+        self.metadata = metadata or load_json(
+            "https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json"
         )
 
         self.size = size or len(self.dataset)

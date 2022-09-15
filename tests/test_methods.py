@@ -2,7 +2,15 @@
 
 import pandas as pd
 import numpy as np
-from reprosyn.methods import IPF, MST, CTGAN, PRIVBAYES
+from reprosyn.methods import (
+    IPF,
+    MST,
+    CTGAN,
+    PRIVBAYES,
+    DS_INDHIST,
+    DS_BAYNET,
+    DS_PRIVBAYES,
+)
 
 
 def choice(arr, n):
@@ -84,3 +92,23 @@ def test_ctgan():
     ctgan = CTGAN(dataset=dummy.copy(), metadata=metadata, size=synth_size)
     ctgan.run()
     check_output(ctgan.output)
+
+
+def test_DS_INDHIST():
+    gen = DS_INDHIST(dataset=dummy.copy(), metadata=metadata, size=synth_size)
+    gen.run()
+    check_output(gen.output)
+
+
+def test_DS_BAYNET():
+    gen = DS_BAYNET(dataset=dummy.copy(), metadata=metadata, size=synth_size)
+    gen.run()
+    check_output(gen.output)
+
+
+def test_DS_PRIVBAYES():
+    gen = DS_PRIVBAYES(
+        dataset=dummy.copy(), metadata=metadata, size=synth_size
+    )
+    gen.run()
+    check_output(gen.output)
