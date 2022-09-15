@@ -62,7 +62,7 @@ class AbstractAttribute(object):
                 value: idx for idx, value in enumerate(self.distribution_bins)
             }
             encoded = self.data.map(
-                lambda x: value_to_bin_idx[x], na_action="ignore"
+                lambda x: value_to_bin_idx[str(x)], na_action="ignore"
             )
         else:
             encoded = self.data.map(
