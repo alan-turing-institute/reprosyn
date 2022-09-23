@@ -325,7 +325,7 @@ setuptools = "^65.3.0"
 type = "git"
 url = "https://github.com/callummole/ektelo.git"
 reference = "dependencies"
-resolved_reference = "1a1076e8112dbd8430b51853b08a27afa5be57c0"
+resolved_reference = "392f3efc764513f947f5b6bf90994ce3fb176f72"
 
 [[package]]
 name = "entrypoints"
