@@ -85,6 +85,52 @@ class GeneratorFunc:
     def get_parameters(self):
         return self.params
 
+    @staticmethod
+    def get_category_map(metadata: list[dict]):
+
+        """Returns a mapping dictionary from the metadata.
+
+        Keys are column names. Entries are dictionaries.
+
+        Entries have two keys "to_index", which maps from column values to 0-n, and "from_index" which does the reverse.
+        """
+
+        def build_maps(col):
+            return {
+                "from_index": dict(
+                    zip(
+                        range(len(col["representation"])),
+                        sorted(col["representation"]),
+                    )
+                ),
+                "to_index": dict(
+                    zip(
+                        sorted(col["representation"]),
+                        range(len(col["representation"])),
+                    )
+                ),
+            }
+
+        return {col["name"]: build_maps(col) for col in metadata}
+
+    @staticmethod
+    def recode_as_category(self, mapping):
+        """Recodes a dataset as categorical integers
+
+        Returns
+        -------
+        Pandas dataframe recoded as categorical integers
+
+        Mapping dictionary with columns as keys and a lookup dict as values
+        """
+
+        for col in data.columns:
+            orig = data[col]
+            data[col] = data[col].astype("category").cat.codes
+            mapping[col] = dict(zip(data[col], orig))
+
+        return data, mapping
+
 
 class Handler(object):
     def __init__(
@@ -132,24 +178,6 @@ def wrap_generator(func):
                 func.main(["--help"])
 
     return wrapper
-
-
-def recode_as_category(data):
-    """Recodes a dataset as categorical integers
-
-    Returns
-    -------
-    Pandas dataframe recoded as categorical integers
-
-    Mapping dictionary with columns as keys and a lookup dict as values
-    """
-    mapping = {}
-    for col in data.columns:
-        orig = data[col]
-        data[col] = data[col].astype("category").cat.codes
-        mapping[col] = dict(zip(data[col], orig))
-
-    return data, mapping
 
 
 def recode_as_original(data, mapping):
