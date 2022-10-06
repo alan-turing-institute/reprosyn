@@ -12,6 +12,7 @@ from reprosyn.methods.ipf.cli import ipfcommand
 from reprosyn.methods.mbi.cli import mstcommand, pbcommand
 from reprosyn.methods.gans.cli import ctgancommand, pategan
 from reprosyn.methods.data_synthesiser.cli import indhist, baynet, ds_privbayes
+from reprosyn.methods.synthpop.cli import spop
 
 
 @click.group(
@@ -108,6 +109,7 @@ main.add_command(indhist)
 main.add_command(baynet)
 main.add_command(ds_privbayes)
 main.add_command(pategan)
+main.add_command(spop)
 
 if __name__ == "__main__":
     main()

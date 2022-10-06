@@ -9,3 +9,4 @@ from reprosyn.methods.data_synthesiser.wrapper import (
     DS_BAYNET,
     DS_PRIVBAYES,
 )
+from reprosyn.methods.synthpop.synthpop import SYNTHPOP

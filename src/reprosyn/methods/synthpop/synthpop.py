@@ -9,28 +9,24 @@ def dtypes_from_metadata(metadata):
     dtypes are:
     NUM_COLS_DTYPES = ['int', 'float', 'datetime']
     CAT_COLS_DTYPES = ['category', 'bool']
+
+    our metadata uses the prive datatypes, see: https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html
     """
+
+    representation_map = {
+        "integer": "int",
+        "date": "datetime",
+        "string": "category",
+        "number": "float",
+        "datetime": "datetime",
+    }
 
     def map_type(col):
 
-        r = "representation"
-
         if "finite" in col["type"]:
-            dtype = "category"
-        elif col[r] == "integer":
-            dtype = "int"
-        elif col[r] == "number":
-            dtype = "float"
-        elif "date" in col[r]:
-            dtype = "datetime"
-        elif "interval" in col["type"]:
-            dtype = "float"
-        elif col[r] == "string":
-            dtype = "category"
+            return "category"
         else:
-            raise Exception("unrecognised type in metadata")
-
-        return dtype
+            return representation_map[col["representation"]]
 
     return {col["name"]: map_type(col) for col in metadata}
 
@@ -61,13 +57,14 @@ class SYNTHPOP(GeneratorFunc):
             "seed": seed,
         }
 
-        self.gen = Synthpop(**parameters)
+        self.gen = None
 
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
 
         self.dtypes = dtypes_from_metadata(self.metadata)
+        print(self.dtypes)
 
     def generate(self, refit=False):
 
