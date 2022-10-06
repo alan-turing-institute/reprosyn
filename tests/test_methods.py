@@ -11,6 +11,7 @@ from reprosyn.methods import (
     DS_INDHIST,
     DS_BAYNET,
     DS_PRIVBAYES,
+    SYNTHPOP,
 )
 
 
@@ -48,7 +49,7 @@ dummy = pd.DataFrame.from_dict(
 names = [m["name"] for m in metadata]
 domains = [m["representation"] for m in metadata]
 
-synth_size = 200  # enough so domain is covered
+synth_size = 500  # enough so domain is covered
 epsilon = 1
 
 
@@ -57,10 +58,10 @@ def check_output(data):
     assert data.shape[0] == synth_size
     assert all(data.columns == names)
 
-    # Check that the domains are identical (needs enough samples to cover domain)
+    # Check that synthetic domain is subset of data domain
     assert all(
         [
-            set(data[col]) == set(domains[i])
+            set(data[col]) <= set(domains[i])
             for i, col in enumerate(data.columns)
         ]
     )
@@ -126,6 +127,17 @@ def test_PATEGAN():
         metadata=metadata,
         size=synth_size,
         batch_size=100,
+    )
+    gen.run()
+    check_output(gen.output)
+
+
+def test_SYNTHPOP():
+
+    gen = SYNTHPOP(
+        dataset=dummy.astype("category").copy(),
+        metadata=metadata,
+        size=synth_size,
     )
     gen.run()
     check_output(gen.output)
