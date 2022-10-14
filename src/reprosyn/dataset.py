@@ -11,17 +11,7 @@ class Dataset:
 
         self.data = self.read_dataset(dataset)
         self.metadata = self.read_metadata(metadata)
-        self.data = self.set_dtypes(
-            self.data, self.dtypes_from_metadata(self.metadata)
-        )
-
-    @staticmethod
-    def set_dtypes(data, dtypes):
-
-        data = data.copy()
-        for col in data.columns:
-            data[col] = data[col].astype(dtypes[col])
-        return data
+        self.data = self.data.astype(self.dtypes_from_metadata(self.metadata))
 
     @staticmethod
     def dtypes_from_metadata(metadata):
