@@ -9,11 +9,7 @@ from ektelo.algorithm import (
 from ektelo.matrix import Identity
 from mbi import Dataset, Domain, Factor
 
-from reprosyn.generator import (
-    GeneratorFunc,
-    recode_as_category,
-    recode_as_original,
-)
+from reprosyn.generator import PipelineBase, encode_ordinal, decode_ordinal
 
 """
 Code adapted from https://github.com/ryan112358/private-pgm/blob/master/examples/privbayes.py
@@ -108,8 +104,8 @@ def domain_from_metadata(metadata: list[dict]):
     return {col["name"]: len(col["representation"]) for col in metadata}
 
 
-class PRIVBAYES(GeneratorFunc):
-    """Generator class for the MST mechanism."""
+class PRIVBAYES(PipelineBase):
+    """Generator class for the PRIVBAYES mechanism."""
 
     generator = staticmethod(privbayes)
 
@@ -121,17 +117,17 @@ class PRIVBAYES(GeneratorFunc):
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
-        df, mapping = recode_as_category(self.dataset)
-        self.mapping = mapping
+        df, encoders = encode_ordinal(self.dataset)
+        self.encoders = encoders
 
         # domain could be json
-        self.domain = domain_from_metadata(self.metadata)
+        self.domain = domain_from_metadata(self.dataset.metadata)
 
-        self.dataset = Dataset(df, Domain.fromdict(self.domain))
+        self.encoded_dataset = Dataset(df, Domain.fromdict(self.domain))
 
     def generate(self):
         self.output = self.generator(
-            self.dataset,
+            self.encoded_dataset,
             self.params["epsilon"],
             self.params["seed"],
             self.size,
@@ -139,7 +135,7 @@ class PRIVBAYES(GeneratorFunc):
         return self.output
 
     def postprocess(self):
-        self.output = recode_as_original(self.output.df, self.mapping)
+        self.output = decode_ordinal(self.output.df, self.encoders)
 
     def save(self, domain_fn="domain.json"):
         super().save()
