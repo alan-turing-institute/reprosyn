@@ -1,37 +1,10 @@
 from synthpop import Synthpop
 
-from reprosyn.generator import GeneratorFunc
+from reprosyn.generator import PipelineBase
+from reprosyn.dataset import Dataset
 
 
-def dtypes_from_metadata(metadata):
-    """synthpop.fit() expects a variable dtypes, which has the form dict[colname, dtype]
-
-    dtypes are:
-    NUM_COLS_DTYPES = ['int', 'float', 'datetime']
-    CAT_COLS_DTYPES = ['category', 'bool']
-
-    our metadata uses the prive datatypes, see: https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html
-    """
-
-    representation_map = {
-        "integer": "int",
-        "date": "datetime",
-        "string": "category",
-        "number": "float",
-        "datetime": "datetime",
-    }
-
-    def map_type(col):
-
-        if "finite" in col["type"]:
-            return "category"
-        else:
-            return representation_map[col["representation"]]
-
-    return {col["name"]: map_type(col) for col in metadata}
-
-
-class SYNTHPOP(GeneratorFunc):
+class SYNTHPOP(PipelineBase):
     def __init__(
         self,
         method=None,
@@ -63,13 +36,13 @@ class SYNTHPOP(GeneratorFunc):
 
     def preprocess(self):
 
-        self.dtypes = dtypes_from_metadata(self.metadata)
+        self.dtypes = Dataset.dtypes_from_metadata(self.dataset.metadata)
         print(self.dtypes)
 
     def generate(self, refit=False):
 
         if (not self.gen) or refit:
             self.gen = Synthpop(**self.params)
-            self.gen.fit(self.dataset, self.dtypes)
+            self.gen.fit(self.dataset.data, self.dtypes)
 
         self.output = self.gen.generate(self.size)
