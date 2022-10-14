@@ -1,4 +1,4 @@
-from reprosyn.generator import GeneratorFunc
+from reprosyn.generator import PipelineBase
 
 from .data_synthesiser import IndependentHistogram, BayesianNet, PrivBayes
 
@@ -19,7 +19,7 @@ def get_metadata(metadata):
     return meta
 
 
-class DS_INDHIST(GeneratorFunc):
+class DS_INDHIST(PipelineBase):
     def __init__(self, histogram_bins=10, **kw):
         parameters = {
             "histogram_bins": histogram_bins,
@@ -31,18 +31,18 @@ class DS_INDHIST(GeneratorFunc):
 
     def preprocess(self):
 
-        self.domain = get_metadata(self.metadata)
+        self.domain = get_metadata(self.dataset.metadata)
 
     def generate(self, refit=False):
 
         if (not self.gen) or refit:
             self.gen = IndependentHistogram(self.domain, **self.params)
-            self.gen.fit(self.dataset)
+            self.gen.fit(self.dataset.data)
 
         self.output = self.gen.generate_samples(self.size)
 
 
-class DS_BAYNET(GeneratorFunc):
+class DS_BAYNET(PipelineBase):
     def __init__(self, histogram_bins=10, degree=1, seed=None, **kw):
         parameters = {
             "histogram_bins": histogram_bins,
@@ -56,18 +56,20 @@ class DS_BAYNET(GeneratorFunc):
 
     def preprocess(self):
 
-        self.domain = get_metadata(self.metadata)
+        self.domain = get_metadata(self.dataset.metadata)
 
     def generate(self, refit=False):
 
         if (not self.gen) or refit:
             self.gen = BayesianNet(self.domain, **self.params)
-            self.gen.fit(self.dataset)
+            self.gen.fit(
+                self.dataset.data.astype("object")
+            )  # hack to get round a not implemented error when dtype=="category"
 
         self.output = self.gen.generate_samples(self.size)
 
 
-class DS_PRIVBAYES(GeneratorFunc):
+class DS_PRIVBAYES(PipelineBase):
     def __init__(
         self, histogram_bins=10, degree=1, epsilon=1, seed=None, **kw
     ):
@@ -84,12 +86,12 @@ class DS_PRIVBAYES(GeneratorFunc):
 
     def preprocess(self):
 
-        self.domain = get_metadata(self.metadata)
+        self.domain = get_metadata(self.dataset.metadata)
 
     def generate(self, refit=False):
 
         if (not self.gen) or refit:
             self.gen = PrivBayes(self.domain, **self.params)
-            self.gen.fit(self.dataset)
+            self.gen.fit(self.dataset.data.astype("object"))
 
         self.output = self.gen.generate_samples(self.size)
