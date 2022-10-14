@@ -1,11 +1,6 @@
 """ CTGAN interface to CTGANSynthesiser. See https://github.com/alan-turing-institute/CTGAN/blob/dependencies/ctgan/synthesizer.py """
-import pandas as pd
 
-from reprosyn.generator import (
-    GeneratorFunc,
-    recode_as_category,
-    recode_as_original,
-)
+from reprosyn.generator import PipelineBase
 
 from ctgan import CTGANSynthesizer
 from reprosyn.methods.gans.pate_gan import PateGan
@@ -43,9 +38,7 @@ def get_metadata(metadata, col_type="categorical"):
     return meta
 
 
-class CTGAN(GeneratorFunc):
-    """Generator class for CTGAN"""
-
+class CTGAN(PipelineBase):
     def __init__(
         self,
         embedding_dim=128,
@@ -72,20 +65,18 @@ class CTGAN(GeneratorFunc):
 
     def preprocess(self):
 
-        self.meta = get_metadata(self.metadata)
+        self.meta = get_metadata(self.dataset.metadata)
 
     def generate(self, refit=False):
 
         if (not self.ctgan) or refit:
             self.ctgan = CTGANSynthesizer(**self.params)
-            self.ctgan.fit(self.dataset, self.meta)
+            self.ctgan.fit(self.dataset.data, self.meta)
 
         self.output = self.ctgan.sample(self.size)
 
 
-class PATEGAN(GeneratorFunc):
-    """Generator class for PATEGAN"""
-
+class PATEGAN(PipelineBase):
     def __init__(
         self,
         epsilon=1,
@@ -112,12 +103,12 @@ class PATEGAN(GeneratorFunc):
 
     def preprocess(self):
 
-        self.meta = get_metadata(self.metadata, col_type="Categorical")
+        self.meta = get_metadata(self.dataset.metadata, col_type="Categorical")
 
     def generate(self, refit=False):
 
         if (not self.gen) or refit:
             self.gen = PateGan(self.meta, **self.params)
-            self.gen.fit(self.dataset)
+            self.gen.fit(self.dataset.data)
 
         self.output = self.gen.generate_samples(self.size)
