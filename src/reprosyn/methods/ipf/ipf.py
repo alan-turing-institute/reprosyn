@@ -5,11 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from reprosyn.generator import (
-    GeneratorFunc,
-    recode_as_category,
-    recode_as_original,
-)
+from reprosyn.generator import PipelineBase, encode_ordinal, decode_ordinal
 
 
 def get_count_matrix(X):
@@ -125,7 +121,7 @@ def ipf(data, marginals, counts, support, size, iter_tolerance=1e-3 * 1000):
     return approx_sample
 
 
-class IPF(GeneratorFunc):
+class IPF(PipelineBase):
     """Generator class for Iterative Proportional Fitting"""
 
     generator = staticmethod(ipf)
@@ -137,17 +133,17 @@ class IPF(GeneratorFunc):
 
     def preprocess(self):
 
-        self.dataset, self.mapping = recode_as_category(self.dataset)
-        data = self.dataset.to_numpy().T
+        data, self.encoders = encode_ordinal(self.dataset)
+        data = data.to_numpy().T
+        self.data_array = data
 
         # TODO: To avoid hanging, check matrix size and warn if too much
         self.count_matrix = get_count_matrix(data)
         self.support_matrix = (self.count_matrix * 0 + 1).astype(int)
 
     def generate(self):
-        data = np.array(self.dataset).T
         self.output = self.generator(
-            data,
+            self.data_array,
             marginals=self.params["marginals"],
             counts=self.count_matrix,
             support=self.support_matrix,
@@ -155,7 +151,7 @@ class IPF(GeneratorFunc):
         )
 
     def postprocess(self):
-        self.output = recode_as_original(
-            pd.DataFrame(self.output.T, columns=self.dataset.columns),
-            self.mapping,
+        self.output = decode_ordinal(
+            pd.DataFrame(self.output.T, columns=self.dataset.data.columns),
+            self.encoders,
         )

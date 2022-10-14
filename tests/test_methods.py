@@ -49,7 +49,7 @@ dummy = pd.DataFrame.from_dict(
 names = [m["name"] for m in metadata]
 domains = [m["representation"] for m in metadata]
 
-synth_size = 500  # enough so domain is covered
+synth_size = 50
 epsilon = 1
 
 
@@ -84,21 +84,32 @@ def test_privbayes():
     check_output(pb.output)
 
 
-def test_ipf():
-    ipf = IPF(
-        dataset=dummy.copy(),
-        size=synth_size,
-        marginals=[(0, 1)],
-        epsilon=epsilon,
-    )
-    ipf.run()
-    check_output(ipf.output)
-
-
 def test_ctgan():
     ctgan = CTGAN(dataset=dummy.copy(), metadata=metadata, size=synth_size)
     ctgan.run()
     check_output(ctgan.output)
+
+
+def test_PATEGAN():
+    gen = PATEGAN(
+        dataset=dummy.copy(),
+        metadata=metadata,
+        size=synth_size,
+        batch_size=100,
+    )
+    gen.run()
+    check_output(gen.output)
+
+
+def test_SYNTHPOP():
+
+    gen = SYNTHPOP(
+        dataset=dummy.copy(),
+        metadata=metadata,
+        size=synth_size,
+    )
+    gen.run()
+    check_output(gen.output)
 
 
 def test_DS_INDHIST():
@@ -121,23 +132,13 @@ def test_DS_PRIVBAYES():
     check_output(gen.output)
 
 
-def test_PATEGAN():
-    gen = PATEGAN(
+def test_ipf():
+    ipf = IPF(
         dataset=dummy.copy(),
         metadata=metadata,
         size=synth_size,
-        batch_size=100,
+        marginals=[(0, 1)],
+        epsilon=epsilon,
     )
-    gen.run()
-    check_output(gen.output)
-
-
-def test_SYNTHPOP():
-
-    gen = SYNTHPOP(
-        dataset=dummy.astype("category").copy(),
-        metadata=metadata,
-        size=synth_size,
-    )
-    gen.run()
-    check_output(gen.output)
+    ipf.run()
+    check_output(ipf.output)
