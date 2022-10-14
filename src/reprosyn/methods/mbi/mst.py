@@ -10,8 +10,6 @@ selection.
 import itertools
 import json
 
-import numpy as np
-import pandas as pd
 import networkx as nx
 import numpy as np
 from disjoint_set import DisjointSet
@@ -20,11 +18,7 @@ from scipy import sparse
 from scipy.special import logsumexp
 
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
-from reprosyn.generator import (
-    GeneratorFunc,
-    recode_as_category,
-    recode_as_original,
-)
+from reprosyn.generator import PipelineBase, encode_ordinal, decode_ordinal
 
 """
 This is a generalization of the winning mechanism from the
@@ -172,7 +166,7 @@ def domain_from_metadata(metadata: list[dict]):
     return {col["name"]: len(col["representation"]) for col in metadata}
 
 
-class MST(GeneratorFunc):
+class MST(PipelineBase):
     """Generator class for the MST mechanism."""
 
     generator = staticmethod(mst)
@@ -186,17 +180,17 @@ class MST(GeneratorFunc):
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
-        df, mapping = recode_as_category(self.dataset)
-        self.mapping = mapping
+        self.encoded_dataset, self.encoders = encode_ordinal(self.dataset)
 
-        # domain could be json
-        self.domain = domain_from_metadata(self.metadata)
+        self.domain = domain_from_metadata(self.dataset.metadata)
 
-        self.dataset = Dataset(df, Domain.fromdict(self.domain))
+        self.encoded_dataset = Dataset(
+            self.encoded_dataset, Domain.fromdict(self.domain)
+        )
 
     def generate(self):
         self.output = self.generator(
-            self.dataset,
+            self.encoded_dataset,
             self.params["epsilon"],
             self.params["delta"],
             self.size,
@@ -204,7 +198,7 @@ class MST(GeneratorFunc):
         return self.output
 
     def postprocess(self):
-        self.output = recode_as_original(self.output.df, self.mapping)
+        self.output = decode_ordinal(self.output.df, self.encoders)
 
     def save(self, domain_fn="domain.json"):
         super().save()
