@@ -1,45 +1,35 @@
 import inspect
 import json
-import requests
 import pathlib
 import warnings
 from os import path
 
 import click
-import pandas as pd
+
+from reprosyn.dataset import Dataset
 
 
-def _base_generate_func(dataset, size):
+def _base_generate_func(dataset):
 
     return dataset
 
 
-def load_json(fname):
-
-    resp = requests.get(fname)
-    data = json.loads(resp.text)
-    return data
-
-
-class GeneratorFunc:
-    """Base generator function class"""
+class PipelineBase:
+    """Base generator pipeline class"""
 
     generator = staticmethod(_base_generate_func)
 
     def __init__(
         self,
         dataset="https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv",
-        metadata=None,
+        metadata="https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json",
         output_dir="./",
         size=None,
         **kwargs,
     ):
-        self.dataset = self.read_dataset(dataset)
-        self.metadata = metadata or load_json(
-            "https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json"
-        )
+        self.dataset = Dataset(dataset, metadata)
 
-        self.size = size or len(self.dataset)
+        self.size = size or len(self.dataset.data)
         self.output_dir = pathlib.Path(output_dir)
         self.params = kwargs
         self.output = None
@@ -55,14 +45,7 @@ class GeneratorFunc:
                 "leading argument for the instance in its definition."
             )
 
-    def read_dataset(self, dataset):
-        if isinstance(dataset, pd.DataFrame):
-            return dataset
-        else:
-            return pd.read_csv(dataset)
-
     def preprocess(self):
-        """Need to encode domain data into method's format"""
         pass
 
     def generate(self):
@@ -134,34 +117,50 @@ def wrap_generator(func):
     return wrapper
 
 
-def recode_as_category(data):
-    """Recodes a dataset as categorical integers
+# Helper functions to encode categories as ordinal.
+def encode_ordinal(dataset: Dataset):
 
-    Returns
-    -------
-    Pandas dataframe recoded as categorical integers
+    encoders = {
+        col["name"]: ordinal_map(col)
+        for col in dataset.metadata
+        if "finite" in col["type"]
+    }
 
-    Mapping dictionary with columns as keys and a lookup dict as values
-    """
-    mapping = {}
-    for col in data.columns:
-        orig = data[col]
-        data[col] = data[col].astype("category").cat.codes
-        mapping[col] = dict(zip(data[col], orig))
+    df = dataset.data.copy()
+    for col, enc in encoders.items():
+        df[col] = df[col].apply(lambda x: string_get(enc["to_index"], x))
 
-    return data, mapping
+    return df, encoders
 
 
-def recode_as_original(data, mapping):
+def string_get(d, k):
+    # if the metadata is string of ints but df is int
+    return d.get(k) or d.get(str(k))
 
-    """Given a dataframe encoded as categorical codes and a mapping dictionary, retrieves original values
 
-    Returns
-    -------
-    Pandas dataframe mapped to original values.
-    """
+def ordinal_map(col):
+    r = "representation"
+    map_dict = {
+        "from_index": dict(
+            zip(
+                range(len(col[r])),
+                sorted(col[r]),
+            )
+        ),
+        "to_index": dict(
+            zip(
+                sorted(col[r]),
+                range(len(col[r])),
+            )
+        ),
+    }
+    return map_dict
 
-    for col in data.columns:
-        data[col] = data[col].apply(lambda x: mapping[col][x])
 
-    return data
+def decode_ordinal(data, encoders):
+
+    df = data.copy()
+    for col, enc in encoders.items():
+        df[col] = df[col].apply(lambda x: enc["from_index"][x])
+
+    return df
