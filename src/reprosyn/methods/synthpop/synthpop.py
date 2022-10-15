@@ -37,7 +37,6 @@ class SYNTHPOP(PipelineBase):
     def preprocess(self):
 
         self.dtypes = Dataset.dtypes_from_metadata(self.dataset.metadata)
-        print(self.dtypes)
 
     def generate(self, refit=False):
 

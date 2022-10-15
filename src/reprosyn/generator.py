@@ -128,9 +128,14 @@ def encode_ordinal(dataset: Dataset):
 
     df = dataset.data.copy()
     for col, enc in encoders.items():
-        df[col] = df[col].apply(lambda x: enc["to_index"][x])
+        df[col] = df[col].apply(lambda x: string_get(enc["to_index"], x))
 
     return df, encoders
+
+
+def string_get(d, k):
+    # if the metadata is string of ints but df is int
+    return d.get(k) or d.get(str(k))
 
 
 def ordinal_map(col):
