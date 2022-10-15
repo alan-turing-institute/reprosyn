@@ -44,6 +44,8 @@ poetry install
 poetry run rsyn --size 100 --file ./src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv mst
 ```
 
+**Jax/Jaxlib**: Note that by default jax and jaxlib, which are optional dependencies of the `mbi` package, are not installed since they are not available for Windows. To install them (which does not change current functionality but quietens warnings), use `poetry install -E jax`. 
+
 
 ## Building exe
 
@@ -62,4 +64,3 @@ pyinstaller src/reprosyn/cli.py --onefile --name rsyn
 ```
 
 This will produce a `build` and a `dist` folder. Deactivate the environment and you can run the binary in the `dist` folder: `./dist/rsyn`
-
