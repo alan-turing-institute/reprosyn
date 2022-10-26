@@ -27,7 +27,7 @@ author = "Callum Mole..."
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.napolean",
+    "sphinx.ext.napoleon",
 ]
 
 
