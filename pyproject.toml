@@ -24,6 +24,7 @@ ektelo = {git = "https://github.com/callummole/ektelo.git", rev = "dependencies"
 py-synthpop = "^0.1.2"
 validators = "^0.20.0"
 Sphinx = "^5.3.0"
+sphinx-rtd-theme = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.3"
