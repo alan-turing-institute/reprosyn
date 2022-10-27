@@ -6,12 +6,34 @@
 Welcome to Reprosyn's documentation!
 ====================================
 
-API
+**Reprosyn** is a python library for generating synthetic data. 
+
+There are many available synthetic data generators with different ways of interfacing. Reprosyn's aim is to wrap generators so that they can be easily used with same interface.
+
+See :doc:`methods` for currently available methods.
+
+
+- **Getting Started**
+   - :doc:`install`
+   - :doc:`demo`
+- **Using Reprosyn**
+   - :doc:`methods`
+   - :doc:`addingmethods`
+- **Contributing**
+   -:``
+
+
+Index
 --------
 .. toctree::
    :maxdepth: 1
+   :titlesonly:
 
    modules
+   install
+   demo
+   methods
+   addingmethods
 
 
 

@@ -1,5 +1,5 @@
-reprosyn
-========
+Reference
+=========
 
 .. toctree::
    :maxdepth: 4
