@@ -1,7 +1,7 @@
 """This module contains the base pipeline class and helper functions to use when adding methods
 
 """
-
+from __future__ import annotations
 
 import inspect
 import json

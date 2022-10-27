@@ -1,3 +1,5 @@
+"""module for the Dataset class"""
+
 from __future__ import annotations
 
 import json
@@ -9,7 +11,27 @@ import validators
 
 
 class Dataset:
-    def __init__(self, dataset, metadata) -> None:
+    """Class for holding a raw dataset and metadata information
+
+    Parameters
+    ----------
+    dataset : pd.DataFrame | str
+        raw dataset
+    metadata : list[dict] | str
+        either a metadata list, a url, or a file path.
+
+
+    Attributes
+    ----------
+    data : pd.DataFrame
+        The raw data
+    metadata : list[dict]
+        metadata as described in `Data Format <https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html>`_
+    """
+
+    def __init__(
+        self, dataset: pd.DataFrame | str, metadata: list[dict] | str
+    ) -> None:
 
         self.data = self.read_dataset(dataset)
         self.metadata = self.read_metadata(metadata)
@@ -48,13 +70,13 @@ class Dataset:
             raise Exception("dataset must be a dataframe or csv")
 
     @staticmethod
-    def read_metadata(metadata):
+    def read_metadata(metadata: list | str):
         if isinstance(metadata, list):
             return metadata
         elif path.isfile(metadata):
             return json.loads(metadata)
-        elif is_url(metadata):
-            return json_from_url(metadata)
+        elif _is_url(metadata):
+            return _json_from_url(metadata)
         else:
             raise Exception(
                 "Metadata needs to be a real file, a url to a file, or a dictionary"
@@ -62,14 +84,16 @@ class Dataset:
 
 
 # HELPERS -----------------------
-def json_from_url(url):
+def _json_from_url(url):
+    """loads json from url"""
 
     resp = requests.get(url)
     data = json.loads(resp.text)
     return data
 
 
-def is_url(s):
+def _is_url(s):
+    """checks if valid url"""
     valid = validators.url(s)
     if valid is True:
         return True

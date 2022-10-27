@@ -1,37 +1,18 @@
-reprosyn package
+Reference
 ================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   reprosyn.methods
-
-Submodules
-----------
-
-reprosyn.cli module
--------------------
-
-.. automodule:: reprosyn.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-reprosyn.generator module
--------------------------
+generator
+---------------
 
 .. automodule:: reprosyn.generator
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
+dataset
 ---------------
 
-.. automodule:: reprosyn
+.. automodule:: reprosyn.dataset
    :members:
    :undoc-members:
    :show-inheritance:

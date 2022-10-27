@@ -20,7 +20,7 @@ See :doc:`methods` for currently available methods.
    - :doc:`methods`
    - :doc:`addingmethods`
 - **Contributing**
-   -:``
+   - ...
 
 
 Index
@@ -29,17 +29,8 @@ Index
    :maxdepth: 1
    :titlesonly:
 
-   modules
+   reprosyn
    install
    demo
    methods
    addingmethods
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
