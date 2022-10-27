@@ -17,8 +17,15 @@ from mbi import Dataset, Domain, FactoredInference
 from scipy import sparse
 from scipy.special import logsumexp
 
-from reprosyn.generator import GeneratorFunc
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
+from reprosyn.generator import PipelineBase, encode_ordinal, decode_ordinal
+
+"""
+This is a generalization of the winning mechanism from the
+2018 NIST Differential Privacy Synthetic Data Competition.
+Unlike the original implementation, this one can work for any discrete dataset,
+and does not rely on public provisional data for measurement selection.
+"""
 
 
 def mst(data, epsilon, delta, rows):
@@ -154,67 +161,46 @@ def get_domain_dict(data):
     return dict(zip(data.columns, data.nunique()))
 
 
-def recode_as_category(data):
-    """Accepts list of column names to record as category
+def domain_from_metadata(metadata: list[dict]):
 
-    Returns
-    -------
-    Pandas dataframe recoded as categorical integers
-
-    Mapping dictionary with columns as keys and a lookup dict as values
-    """
-    mapping = {}
-    for col in data.columns:
-        orig = data[col]
-        data[col] = data[col].astype("category").cat.codes
-        mapping[col] = dict(zip(data[col], orig))
-
-    return data, mapping
+    return {col["name"]: len(col["representation"]) for col in metadata}
 
 
-def recode_as_original(data, mapping):
-    """Given a dataframe encoded as categorical codes and a mapping
-    dictionary, retrieves original values
-
-    Returns
-    -------
-    Pandas dataframe mapped to original values.
-    """
-
-    for col in data.columns:
-        data[col] = data[col].apply(lambda x: mapping[col][x])
-
-    return data
-
-
-class MST(GeneratorFunc):
+class MST(PipelineBase):
     """Generator class for the MST mechanism."""
 
     generator = staticmethod(mst)
 
+    def __init__(self, epsilon=1.0, delta=1e-9, degree=2, **kw):
+        parameters = {
+            "epsilon": epsilon,
+            "delta": delta,
+            "degree": degree,
+        }
+        super().__init__(**kw, **parameters)
+
     def preprocess(self):
-        df, mapping = recode_as_category(self.dataset)
-        self.mapping = mapping
+        self.encoded_dataset, self.encoders = encode_ordinal(self.dataset)
 
-        # domain could be json
-        self.domain = self.options["domain"] or get_domain_dict(df)
+        self.domain = domain_from_metadata(self.dataset.metadata)
 
-        self.dataset = Dataset(df, Domain.fromdict(self.domain))
+        self.encoded_dataset = Dataset(
+            self.encoded_dataset, Domain.fromdict(self.domain)
+        )
 
     def generate(self):
-        # inspect signatuere check for size as parameter
         self.output = self.generator(
-            self.dataset,
-            self.options["epsilon"],
-            self.options["delta"],
+            self.encoded_dataset,
+            self.params["epsilon"],
+            self.params["delta"],
             self.size,
         )
         return self.output
 
     def postprocess(self):
-        self.output = recode_as_original(self.output.df, self.mapping)
+        self.output = decode_ordinal(self.output.df, self.encoders)
 
-    def save(self):
+    def save(self, domain_fn="domain.json"):
         super().save()
-        with open(self.output_dir / "domain.json", "w") as outfile:
+        with open(self.output_dir / domain_fn, "w") as outfile:
             json.dump(self.domain, outfile)

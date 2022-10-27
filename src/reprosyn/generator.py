@@ -5,24 +5,34 @@ import warnings
 from os import path
 
 import click
-import pandas as pd
+
+from reprosyn.dataset import Dataset
 
 
-def _base_generate_func(dataset, size):
+def _base_generate_func(dataset):
 
     return dataset
 
 
-class GeneratorFunc:
-    """Base generator function class"""
+class PipelineBase:
+    """Base generator pipeline class"""
 
     generator = staticmethod(_base_generate_func)
 
-    def __init__(self, dataset, output_dir, size=None, **kwargs):
-        self.dataset = self.read_dataset(dataset)
-        self.size = size or len(self.dataset)
+    def __init__(
+        self,
+        dataset="https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv",
+        metadata="https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json",
+        output_dir="./",
+        size=None,
+        **kwargs,
+    ):
+        self.dataset = Dataset(dataset, metadata)
+
+        self.size = size or len(self.dataset.data)
         self.output_dir = pathlib.Path(output_dir)
-        self.options = kwargs
+        self.params = kwargs
+        self.output = None
 
         self.check_generator()
 
@@ -35,18 +45,12 @@ class GeneratorFunc:
                 "leading argument for the instance in its definition."
             )
 
-    def read_dataset(self, dataset):
-        if isinstance(dataset, pd.DataFrame):
-            return dataset
-        else:
-            return pd.read_csv(dataset)
-
     def preprocess(self):
         pass
 
     def generate(self):
         # inspect signatuere check for size as parameter
-        self.output = self.generator(self.dataset, self.size, **self.options)
+        self.output = self.generator(self.dataset, self.size, **self.params)
         return self.output
 
     def postprocess(self):
@@ -54,6 +58,15 @@ class GeneratorFunc:
 
     def save(self):
         self.output.to_csv(self.output_dir / "output.csv", index=False)
+
+    def run(self):
+        self.preprocess()
+        self.generate()
+        self.postprocess()
+        self.save()
+
+    def get_parameters(self):
+        return self.params
 
 
 class Handler(object):
@@ -66,6 +79,7 @@ class Handler(object):
         configpath=None,
         configfolder=None,
         configstring=None,
+        metadata=None,
     ):
         self.file = file
         self.out = out
@@ -74,6 +88,7 @@ class Handler(object):
         self.configpath = configpath
         self.configfolder = configfolder
         self.configstring = configstring
+        self.metadata = metadata
 
     def get_config_path(self):
         if self.configpath != "-":
@@ -100,3 +115,52 @@ def wrap_generator(func):
                 func.main(["--help"])
 
     return wrapper
+
+
+# Helper functions to encode categories as ordinal.
+def encode_ordinal(dataset: Dataset):
+
+    encoders = {
+        col["name"]: ordinal_map(col)
+        for col in dataset.metadata
+        if "finite" in col["type"]
+    }
+
+    df = dataset.data.copy()
+    for col, enc in encoders.items():
+        df[col] = df[col].apply(lambda x: string_get(enc["to_index"], x))
+
+    return df, encoders
+
+
+def string_get(d, k):
+    # if the metadata is string of ints but df is int
+    return d.get(k) or d.get(str(k))
+
+
+def ordinal_map(col):
+    r = "representation"
+    map_dict = {
+        "from_index": dict(
+            zip(
+                range(len(col[r])),
+                sorted(col[r]),
+            )
+        ),
+        "to_index": dict(
+            zip(
+                sorted(col[r]),
+                range(len(col[r])),
+            )
+        ),
+    }
+    return map_dict
+
+
+def decode_ordinal(data, encoders):
+
+    df = data.copy()
+    for col, enc in encoders.items():
+        df[col] = df[col].apply(lambda x: enc["from_index"][x])
+
+    return df

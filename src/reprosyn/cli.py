@@ -8,9 +8,14 @@ from os import path
 
 import click
 
+from reprosyn.generator import Handler
+from reprosyn.methods.ipf.cli import ipfcommand
+from reprosyn.methods.mbi.cli import mstcommand, pbcommand
+from reprosyn.methods.gans.cli import ctgancommand, pategan
+from reprosyn.methods.data_synthesiser.cli import indhist, baynet, ds_privbayes
+from reprosyn.methods.synthpop.cli import spop
 from reprosyn import run
-from reprosyn.generator import GeneratorFunc, Handler, wrap_generator
-from reprosyn.methods.mbi.cli import mstcommand
+from reprosyn.generator import PipelineBase, Handler, wrap_generator
 
 
 @click.group(
@@ -59,6 +64,12 @@ from reprosyn.methods.mbi.cli import mstcommand
     ),
     help="directory for method configs",
 )
+@click.option(
+    "--metadata",
+    type=click.File(),
+    default=None,
+    help="domain to use, in privacy toolbox format, defaults to census",
+)
 @click.pass_context
 def main(ctx, **kwargs):
     """ "A cli tool synthesising the 1% census"
@@ -94,6 +105,14 @@ def main(ctx, **kwargs):
 
 
 main.add_command(mstcommand)
+main.add_command(pbcommand)
+main.add_command(ipfcommand)
+main.add_command(ctgancommand)
+main.add_command(indhist)
+main.add_command(baynet)
+main.add_command(ds_privbayes)
+main.add_command(pategan)
+main.add_command(spop)
 
 
 @main.command(
