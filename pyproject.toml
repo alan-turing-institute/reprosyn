@@ -35,7 +35,7 @@ jupyter = "^1.0.0"
 jax = ["jax","jaxlib"]
 
 [tool.poetry.scripts]
-rsyn = "reprosyn.cli:main"
+rsyn = "reprosyn.cli:cli"
 
 [tool.black]
 line-length = 79

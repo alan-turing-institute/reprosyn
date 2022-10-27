@@ -1,6 +1,6 @@
 Command line interface reference
 ================================
 
-.. click:: reprosyn.cli:main
+.. click:: reprosyn.cli:cli
     :prog: rsyn
     :nested: full

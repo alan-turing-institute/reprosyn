@@ -3,16 +3,14 @@
 import json
 import sys
 from io import StringIO
-from os import path
+import os
 
 import click
 
 from reprosyn.generator import Handler
-from reprosyn.methods.ipf.cli import ipfcommand
-from reprosyn.methods.mbi.cli import mstcommand, pbcommand
-from reprosyn.methods.gans.cli import ctgancommand, pategan
-from reprosyn.methods.data_synthesiser.cli import indhist, baynet, ds_privbayes
-from reprosyn.methods.synthpop.cli import spop
+
+# from reprosyn.methods.ipf.cli import ipfcommand
+from reprosyn.methods import COMMANDS
 
 
 @click.group(
@@ -56,8 +54,8 @@ from reprosyn.methods.synthpop.cli import spop
 @click.option(
     "--configfolder",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
-    default=path.join(
-        path.dirname(path.realpath(__file__)), "methods/config/"
+    default=os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "methods/config/"
     ),
     help="directory for method configs",
 )
@@ -68,7 +66,7 @@ from reprosyn.methods.synthpop.cli import spop
     help="domain to use, in privacy toolbox format, defaults to census",
 )
 @click.pass_context
-def main(ctx, **kwargs):
+def cli(ctx, **kwargs):
     """A cli tool synthesising the 1% census
 
     Usage: rsyn <global options> <generator> <generator options>
@@ -83,7 +81,7 @@ def main(ctx, **kwargs):
 
     ctx.obj = Handler(**kwargs)
 
-    if path.exists(ctx.obj.get_config_path()):
+    if os.path.exists(ctx.obj.get_config_path()):
         if ctx.obj.generateconfig:
             click.confirm(
                 f"Config file exists at {ctx.obj.get_config_path()},"
@@ -101,15 +99,9 @@ def main(ctx, **kwargs):
     # print(f"Executing generator {ctx.invoked_subcommand}")
 
 
-main.add_command(mstcommand)
-main.add_command(pbcommand)
-main.add_command(ipfcommand)
-main.add_command(ctgancommand)
-main.add_command(indhist)
-main.add_command(baynet)
-main.add_command(ds_privbayes)
-main.add_command(pategan)
-main.add_command(spop)
+for cmd in COMMANDS:
+    cli.add_command(cmd)
+
 
 if __name__ == "__main__":
-    main()
+    cli()

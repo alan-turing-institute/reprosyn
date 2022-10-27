@@ -10,7 +10,7 @@ from reprosyn.methods.ipf.ipf import IPF
     options_metavar="[GENERATOR OPTIONS]",
 )
 @wrap_generator
-def ipfcommand(h, **kwargs):
+def cmd_ipf(h, **kwargs):
     """Runs IPF on --file or STDIN
 
     See rsyn --help for general use.
@@ -26,4 +26,4 @@ def ipfcommand(h, **kwargs):
 
 
 if __name__ == "__main__":
-    ipfcommand()
+    ipfcmd()
