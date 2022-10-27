@@ -69,7 +69,7 @@ from reprosyn.methods.synthpop.cli import spop
 )
 @click.pass_context
 def main(ctx, **kwargs):
-    """ "A cli tool synthesising the 1% census"
+    """A cli tool synthesising the 1% census
 
     Usage: rsyn <global options> <generator> <generator options>
 

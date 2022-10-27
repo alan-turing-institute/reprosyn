@@ -30,6 +30,7 @@ Index
    :titlesonly:
 
    reprosyn
+   cli
    install
    demo
    methods
