@@ -41,7 +41,7 @@ from reprosyn.methods.mbi.privbayes import PRIVBAYES
 #     help="maximum number of cells for marginals in workload",
 # )
 @wrap_generator
-def mstcommand(h, **kwargs):
+def cmd_mst(h, **kwargs):
     """Runs MST on --file or STDIN
 
     See rsyn --help for general use.
@@ -83,7 +83,7 @@ def mstcommand(h, **kwargs):
     help="random seed",
 )
 @wrap_generator
-def pbcommand(h, **kwargs):
+def cmd_pb(h, **kwargs):
     """Runs PrivBayes on --file or STDIN
 
     See rsyn --help for general use.
@@ -102,7 +102,3 @@ def pbcommand(h, **kwargs):
     )
     generator.run()
     return generator.output
-
-
-if __name__ == "__main__":
-    mstcommand()

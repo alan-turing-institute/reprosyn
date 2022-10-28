@@ -8,17 +8,29 @@ from tqdm import tqdm
 from reprosyn.generator import PipelineBase, encode_ordinal, decode_ordinal
 
 
-def get_count_matrix(X):
+def get_count_matrix(X, metadata):
+    """Returns the counts of each feature category.
 
-    """
-    Returns the counts of each feature category.
+    Parameters
+    ----------
+    X : np.ndarray
+        X is a numpy array with shape (features, individuals).
+    metadata : list[dict]
+        metadata, see `Data Format <https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html>`_
 
-    X is a numpy array with shape (features, individuals).
-    Assumes that all the highest number category is represented in the dataset
-    count_matrix is a numpy array with ndims = nfeatures and shape determined by the feature categories, e.g. (ncatg1, ncatg2,...)
+    Returns
+    -------
+    nd.ndarray
+        a numpy array with ndims = nfeatures and shape determined by the size of feature categories, taken from metadata e.g. (ncatg1, ncatg2,...)
     """
+
+    category_sizes = [
+        len(col["representation"]) for col in metadata
+    ]  # list of columns sizes
+
+    # creates an ndim, and shape with size of columnss
     count_matrix = np.zeros(
-        X.max(axis=1) + 1, dtype=np.uint16
+        category_sizes, dtype=np.uint16
     )  # assumes no cell will have more than 65k persons in it...
 
     for i in range(X.shape[1]):
@@ -28,16 +40,25 @@ def get_count_matrix(X):
 
 
 def get_margin_grids(X, count_matrix, known_marginals):
+    """Create some collections of dimensions where the marginal counts are known.
 
+    These will be matched by the :func:`sinkhorn algorithm`
+
+    Parameters
+    ----------
+    X : np.ndarray
+        numpy array with shape (features, individuals).
+    count_matrix : np.ndarry
+        matrix of shape (len(catg1), len(catg2)...), with occurence counts for each category cell
+    known_marginals : list[tuple]
+       known_marginals should be *ordered* tuples (to save checking ordering issues later...)
+
+    Returns
+    -------
+    list
+        margin_grids is list of len(known_marginals) with entries [known_marginals[i], ndarray]
     """
-    Create some collections of dimensions where the marginal counts are known.
-    These will be matched by the sinkhorn algorithm
 
-    X is a numpy array with shape (features, individuals).
-    known_marginals should be *ordered* tuples (to save checking ordering issues later...)
-
-    margin_grids is list of len(known_marginals) with entries [known_marginals[i], ndarray]
-    """
     dim_set = set(range(X.shape[0]))
     margin_grids = [
         (x, count_matrix.sum(axis=tuple(dim_set - set(x))))
@@ -55,17 +76,36 @@ def _einsum_construct(ind, full_dim):
     return string_pre + string_mid + string_end
 
 
-# A version of iterative proportional fitting algorithm, in high dimension, with multivariate marginals
-# Attempts to convert initial_tensor to have specified marginals
-# If initial_tensor is constant, then it will yield the maximum entropy distribution with specified marginals
 def sinkhorn_tensor(
     initial_tensor,
     marginals,
     max_iterations=1e4,
     iter_tolerance=5e-1,
     eps=1e-5,
-    verbose=False,
 ):
+    """A version of iterative proportional fitting algorithm, in high dimension, with multivariate marginals
+
+    Attempts to convert initial_tensor to have specified marginals
+    If initial_tensor is constant, then it will yield the maximum entropy distribution with specified marginals
+
+    Parameters
+    ----------
+    initial_tensor : np.ndarray
+        beginning probability tensor of shape (len(catg1), len(catg2)...)
+    marginals : list
+        list of len(known_marginals) with entries [known_marginals[i], ndarray], see :func:`get_margin_grids`
+    max_iterations : float, optional
+        maximum number of iterations
+    iter_tolerance : float, optional
+        tolerance value for stopping
+    eps : _type_, optional
+        _description_, by default 1e-5
+
+    Returns
+    -------
+    np.ndarray
+        probability matrix with probabilities for each category cell
+    """
     count = 0
     err = 1 + iter_tolerance
     while (count < max_iterations) and (err > iter_tolerance):
@@ -84,13 +124,25 @@ def sinkhorn_tensor(
 
         err = abs(run_tensor - initial_tensor).sum()
         initial_tensor = run_tensor
-        if verbose:
-            print(count, err)
 
     return initial_tensor
 
 
 def sampler(N, probability_array):
+    """Samples from the probability matrix
+
+    Parameters
+    ----------
+    N : int
+        number of samples
+    probability_array : np.ndarray
+        probability matrix with probabilities for each category cell
+
+    Returns
+    -------
+    np.array
+        matrix of samples (features, individuals)
+    """
     dim_vec = tuple(range(len(probability_array.shape)))
 
     outlist = []
@@ -110,11 +162,48 @@ def sampler(N, probability_array):
     return np.array(outlist).T
 
 
-def ipf(data, marginals, counts, support, size, iter_tolerance=1e-3 * 1000):
+def ipf(
+    data, counts, support, size, marginals, max_iterations, iter_tolerance
+):
+    """Runs ipf algorithm steps: :func:`get_margin_grids`, :func:`sinkhorn_tensor`, :func:`sampler`
+
+    Parameters
+    ----------
+    data : np.ndarray
+        numpy array with shape (features, individuals).
+    counts : np.ndarray
+        matrix of shape (len(catg1), len(catg2)...), see :func:`get_count_matrix`
+    support : np.ndarray
+        beginning probability tensor of shape (len(catg1), len(catg2)...)
+    size : int
+        number of samples
+    marginals : list[tuples]
+        list of marginals to preserve, specified by tuples of column indices
+    max_iterations : float
+        maximum number of iterations
+    iter_tolerance : float
+        tolerance value for stopping
+
+    Returns
+    -------
+    np.ndarray
+        probability matrix with probabilities for each category cell
+
+
+    Notes
+    -----
+
+    The output of :func:`sinkhorn_tensor` could be saved for repeat sampling
+    """
 
     margin_grids = get_margin_grids(data, counts, marginals)
 
-    approx_count = sinkhorn_tensor(support, margin_grids, iter_tolerance)
+    approx_count = sinkhorn_tensor(
+        initial_tensor=support,
+        marginals=margin_grids,
+        max_iterations=max_iterations,
+        iter_tolerance=iter_tolerance,
+    )
 
     approx_sample = sampler(size, approx_count)
 
@@ -122,35 +211,71 @@ def ipf(data, marginals, counts, support, size, iter_tolerance=1e-3 * 1000):
 
 
 class IPF(PipelineBase):
-    """Generator class for Iterative Proportional Fitting"""
+    """Generator class for iterative proportional fitting.
+
+    Parameters
+    ----------
+    marginals : list[tuple[int]]
+        A list of marginal combinations to preserve.
+
+    Notes
+    -----
+
+    The count matrix (see :func:`count_matrix`) is the computational bottleneck,
+    so is calculated once during preprocessing. This is the key obstacle to scaling.
+
+    Code adapted from original draft by Sam Cohen.
+
+    """
 
     generator = staticmethod(ipf)
 
-    def __init__(self, marginals=[(0, 1), (0, 2)], **kw):
+    def __init__(
+        self,
+        marginals=[(0, 1), (0, 2)],
+        max_iterations=1e4,
+        iter_tolerance=5e-1,
+        **kw
+    ):
         # TODO: check that marginals are ordered tuples.
-        parameters = {"marginals": marginals}
+        parameters = {
+            "marginals": marginals,
+            "max_iterations": max_iterations,
+            "iter_tolerance": iter_tolerance,
+        }
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
+        """IPF deals solely with categorical data.
+
+        The preprocessing steps:
+        - encode dataset, see :func:`encode_ordinal`.
+        - save encoded data as a transposed numpy array.
+        - calculate count matrix, see :func:`count_matrix`.
+
+        """
 
         data, self.encoders = encode_ordinal(self.dataset)
-        data = data.to_numpy().T
-        self.data_array = data
+        self.data_array = data.to_numpy().T
 
         # TODO: To avoid hanging, check matrix size and warn if too much
-        self.count_matrix = get_count_matrix(data)
-        self.support_matrix = (self.count_matrix * 0 + 1).astype(int)
+        self.count_matrix = get_count_matrix(
+            self.data_array, self.dataset.metadata
+        )
 
     def generate(self):
+        """See generator function :func:`ipf`"""
+
         self.output = self.generator(
             self.data_array,
-            marginals=self.params["marginals"],
             counts=self.count_matrix,
-            support=self.support_matrix,
+            support=(self.count_matrix * 0 + 1).astype(int),
             size=self.size,
+            **self.params
         )
 
     def postprocess(self):
+        """Decodes output, see :func:`decode_ordinal` and saves as pd.DataFrame"""
         self.output = decode_ordinal(
             pd.DataFrame(self.output.T, columns=self.dataset.data.columns),
             self.encoders,

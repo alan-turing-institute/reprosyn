@@ -25,7 +25,7 @@ from reprosyn.methods.data_synthesiser.wrapper import (
     default=1,
 )
 @wrap_generator
-def baynet(h, **kwargs):
+def cmd_baynet(h, **kwargs):
 
     generator = DS_BAYNET(
         dataset=h.file, size=h.size, output_dr=h.out, **kwargs
@@ -46,7 +46,7 @@ def baynet(h, **kwargs):
     default=10,
     help="number of bins",
 )
-def indhist(h, **kwargs):
+def cmd_indhist(h, **kwargs):
 
     generator = DS_INDHIST(
         dataset=h.file, size=h.size, output_dr=h.out, **kwargs
@@ -79,7 +79,7 @@ def indhist(h, **kwargs):
     default=1.0,
     help="privacy parameter epsilon",
 )
-def ds_privbayes(h, **kwargs):
+def cmd_ds_privbayes(h, **kwargs):
 
     generator = DS_PRIVBAYES(
         dataset=h.file, size=h.size, output_dr=h.out, **kwargs

@@ -19,7 +19,7 @@ from reprosyn.methods.synthpop.synthpop import SYNTHPOP
     help="random seed",
 )
 @wrap_generator
-def spop(h, **kwargs):
+def cmd_spop(h, **kwargs):
     """Runs SynthPop on --file or STDIN
 
     See rsyn --help for general use.
@@ -38,7 +38,3 @@ def spop(h, **kwargs):
     )
     generator.run()
     return generator.output
-
-
-if __name__ == "__main__":
-    spop()
