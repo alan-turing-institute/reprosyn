@@ -23,7 +23,6 @@ from reprosyn.methods.data_synthesiser.cli import (
     cmd_ds_privbayes,
     cmd_indhist,
 )
-
 from reprosyn.methods.synthpop.cli import cmd_spop
 
 COMMANDS = (

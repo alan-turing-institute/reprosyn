@@ -26,4 +26,4 @@ def cmd_ipf(h, **kwargs):
 
 
 if __name__ == "__main__":
-    ipfcmd()
+    cmd_ipf()

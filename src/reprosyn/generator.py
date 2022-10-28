@@ -29,7 +29,7 @@ class PipelineBase:
     dataset : str | pandas.Dataframe, optional
         either a path to a file or a pre-loaded dataframe, by default the `Census 1% <https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv>`_
     metadata : str, optional
-        metadata dictionary, see `Data Format <https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html>`_, by default `Census Schema <https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json>`_
+        metadata list[dict], see `Data Format <https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html>`_, by default `Census Schema <https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json>`_
     output_dir : str, optional
         output directory, by default "./"
     size : int, optional
