@@ -12,6 +12,8 @@ IPF
 
 .. autoclass:: reprosyn.methods.ipf.ipf.IPF
 
+See :doc:`methods/ipf` for more details
+
 
 MST
 ---------------

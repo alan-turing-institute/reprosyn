@@ -34,4 +34,5 @@ Index
    install
    demo
    methods
+   methods/index.rst
    addingmethods
