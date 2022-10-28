@@ -206,7 +206,11 @@ def string_get(d: dict, k: str | int):
         representation value
     """
 
-    return d.get(k) or d.get(str(k))
+    val = d.get(k)
+    if not (val == 0 and type(val) == int):
+        val = d.get(str(k))
+
+    return val
 
 
 def ordinal_map(col):
