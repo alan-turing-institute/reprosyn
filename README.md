@@ -1,3 +1,6 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)![tests](https://github.com/alan-turing-institute/reprosyn/actions/workflows/ci.yml/badge.svg) [![Documentation Status](https://readthedocs.org/projects/reprosyn/badge/?version=latest)](https://reprosyn.readthedocs.io/en/latest/?badge=latest)
+
+
 # Reprosyn: A tool for synthesising the census 1% teaching file.
 
 A python package command-line tool that applies various synthetic data generation methods to the Census 1% teaching file.
