@@ -29,8 +29,11 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx_click",
+    "myst_parser",
 ]
 
+
+source_suffix = [".rst", ".md"]
 
 autosummary_generate = True
 

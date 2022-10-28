@@ -26,6 +26,7 @@ validators = "^0.20.0"
 Sphinx = "^5.3.0"
 sphinx-rtd-theme = "^1.0.0"
 sphinx-click = "^4.3.0"
+myst-parser = "^0.18.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.3"
