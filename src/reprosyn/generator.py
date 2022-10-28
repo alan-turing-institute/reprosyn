@@ -207,7 +207,7 @@ def string_get(d: dict, k: str | int):
     """
 
     val = d.get(k)
-    if not (val == 0 and type(val) == int):
+    if val is None:
         val = d.get(str(k))
 
     return val
