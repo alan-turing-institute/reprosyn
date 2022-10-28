@@ -51,9 +51,7 @@ class Dataset:
         """
 
         metadata_cols = [col["name"] for col in self.metadata]
-        print(f"mcols: {metadata_cols}")
         columns = list(self.data.columns)
-        print(f"data columns: {columns}")
 
         if set(columns) <= set(metadata_cols):
             # subset metadata.
