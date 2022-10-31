@@ -139,6 +139,11 @@ class Handler(object):
         return p
 
 
+def _print_help():
+    ctx = click.get_current_context()
+    click.echo(ctx.get_help())
+
+
 def wrap_generator(func):
     """Convenient decorator function for command line use."""
 
@@ -153,8 +158,9 @@ def wrap_generator(func):
             if not h.file.isatty():
                 func(h, **kwargs)
             else:
+
                 click.echo("Please give a dataset using --file or STDIN")
-                func.main(["--help"])
+                _print_help()
 
     return wrapper
 

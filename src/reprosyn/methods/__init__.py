@@ -1,5 +1,9 @@
 # Convenience so that using can call `from reprosyn.methods import [command]`
 
+import warnings
+
+warnings.filterwarnings(action="ignore", category=UserWarning)
+
 # METHODS
 # ---------------------
 from reprosyn.methods.ipf.ipf import IPF

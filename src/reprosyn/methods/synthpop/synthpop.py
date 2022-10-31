@@ -3,6 +3,8 @@ from synthpop import Synthpop
 from reprosyn.generator import PipelineBase
 from reprosyn.dataset import Dataset
 
+import warnings
+
 
 class SYNTHPOP(PipelineBase):
     def __init__(
@@ -39,6 +41,8 @@ class SYNTHPOP(PipelineBase):
         self.dtypes = Dataset.dtypes_from_metadata(self.dataset.metadata)
 
     def generate(self, refit=False):
+
+        warnings.filterwarnings("ignore", category=FutureWarning)
 
         if (not self.gen) or refit:
             self.gen = Synthpop(**self.params)
