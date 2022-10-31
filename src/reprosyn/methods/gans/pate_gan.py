@@ -5,9 +5,15 @@ by J. Yoon, J. Jordon, M. van der Schaar, published in International Conference 
 Adapted from: https://bitbucket.org/mvdschaar/mlforhealthlabpub/src/82d7f91d46db54d256ff4fc920d513499ddd2ab8/alg/pategan/
 """
 
+import os
+
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  ##silence unneccesary warnings
+
 import tensorflow.compat.v1 as tf
 
+tf.logging.set_verbosity(tf.logging.ERROR)
 tf.disable_v2_behavior()
+
 
 import numpy as np
 from pandas import DataFrame
