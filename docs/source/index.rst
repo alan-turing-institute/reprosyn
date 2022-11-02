@@ -20,7 +20,7 @@ See :doc:`methods` for currently available methods.
    - :doc:`methods`
    - :doc:`addingmethods`
 - **Contributing**
-   - ...
+   - :doc:`dev`
 
 
 Index
@@ -36,3 +36,4 @@ Index
    methods
    methods/index.rst
    addingmethods
+   dev
