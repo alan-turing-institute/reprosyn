@@ -1,17 +1,41 @@
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)![tests](https://github.com/alan-turing-institute/reprosyn/actions/workflows/ci.yml/badge.svg) [![Documentation Status](https://readthedocs.org/projects/reprosyn/badge/?version=latest)](https://reprosyn.readthedocs.io/en/latest/?badge=latest)
 
 
-# Reprosyn: A tool for synthesising the census 1% teaching file.
+# Reprosyn: synthesising tabular data
 
-A python package command-line tool that applies various synthetic data generation methods to the Census 1% teaching file.
+Reprosyn is a python library for generating synthetic data.
 
-Reprosyn is inspired by [QUIPP](https://github.com/alan-turing-institute/QUIPP-pipeline/tree/2011-census-microdata).
+Reprosyn's aim is to wrap generators so that they can be easily used with same interface. See how to [add generators]().
+
+It can be used either as a [python package]() or a [command-line tool]().
+
+The [Documentation](https://reprosyn.readthedocs.io/en/latest/) is the best place to get started.
 
 ## Installation
 
+You can install it via pip:
+
+```
+pip install git+https://github.com/alan-turing-institute/reprosyn.git
+```
+
+or, if using poetry:
+```
+poetry add git+https://github.com/alan-turing-institute/reprosyn.git#main
+```
+
+This will give you the command line tool `rsyn`, and the python package `reprosyn`.
+
 Reprosyn uses poetry to manage dependencies. See the [poetry installation docs](https://python-poetry.org/docs/#installation) for how to install poetry on your system.
 
-To test the package:
+### Additional dependencies
+
+Some dependencies are optional by default to support cross-platform use. If you are installing on mac it is recommended to install with an `--all-extras` flag. See the [installation documentation](https://reprosyn.readthedocs.io/en/latest/install.html) for more information.
+
+## For developers
+
+To install locally:
 
 ```bash
 git clone https://github.com/alan-turing-institute/reprosyn
@@ -21,49 +45,20 @@ poetry shell #opens environment in a subshell
 rsyn --help
 ```
 
-You can also install it via pip:
+## Example Usage
 
-```
-pip install git+https://github.com/alan-turing-institute/reprosyn
-```
+The [Documentation](https://reprosyn.readthedocs.io/en/latest/) is the best place to get started.
 
-Example usage:
-
-`rsyn [GLOBAL OPTIONS] [GENERATOR] [GENERATOR OPTIONS]` 
-
-```
-CENSUS=<census 1% file path>
-rsyn --file $CENSUS mst
-
-rsyn mst <  $CENSUS
-```
-
-You can also run the package from within another project, assuming you have poetry installed. Though currently you need to run this from within the root of the project: 
-
-```
-git clone https://github.com/alan-turing-institute/reprosyn
-cd reprosyn
-poetry install
-poetry run rsyn --size 100 --file ./src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv mst
-```
-
-**Jax/Jaxlib**: Note that by default jax and jaxlib, which are optional dependencies of the `mbi` package, are not installed since they are not available for Windows. To install them (which does not change current functionality but quietens warnings), use `poetry install -E jax`. 
+See also the [Examples notebook](https://github.com/alan-turing-institute/reprosyn/blob/main/examples/reprosyn_as_package.ipynb) for examples of using all methods.
 
 
-## Building exe
+## Related Projects
 
-Reprosyn also uses [pyinstaller](https://pyinstaller.org/en/stable/) to generate a binary file that can be executed outside of a python environment, as long as the machine spec is similar to the build machine. 
+Reprosyn is under active development as a companion library for [Toolbox for Adversarial Privacy Auditing](https://github.com/alan-turing-institute/privacy-sdg-toolbox), to support research comparing synthetic data generators.
 
-An executable makes it easier to distribute the package to non-python users.
+There are lots of other great synthetic data packages. Such as:
 
-To build the executable:
+- [Synthetic Data Vault](https://github.com/sdv-dev/SDV)
+- [SmartNoise SDK](https://github.com/opendp/smartnoise-sdk)
 
-```
-git clone https://github.com/alan-turing-institute/reprosyn
-cd reprosyn
-poetry install
-poetry shell
-pyinstaller src/reprosyn/cli.py --onefile --name rsyn 
-```
-
-This will produce a `build` and a `dist` folder. Deactivate the environment and you can run the binary in the `dist` folder: `./dist/rsyn`
+Note that some of Reprosyn's design is inspired by [QUIPP](https://github.com/alan-turing-institute/QUIPP-pipeline/).
