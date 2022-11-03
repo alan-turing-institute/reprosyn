@@ -54,16 +54,23 @@ class PipelineBase:
 
     def __init__(
         self,
-        dataset="https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv",
-        metadata="https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json",
-        output_dir="./",
+        dataset=None,
+        metadata=None,
+        out="./",
         size=None,
         **kwargs,
     ):
+
+        # defaults for dev:
+        if not metadata:
+            metadata = "https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json"
+        if not dataset:
+            dataset = "https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv"
+
         self.dataset = Dataset(dataset, metadata)
 
         self.size = size or len(self.dataset.data)
-        self.output_dir = pathlib.Path(output_dir)
+        self.output_dir = pathlib.Path(out)
         self.params = kwargs
         self.output = None
 
@@ -106,63 +113,6 @@ class PipelineBase:
         self.generate()
         self.postprocess()
         self.save()
-
-
-class Handler(object):
-    """Class to hold cli parameters"""
-
-    def __init__(
-        self,
-        file=None,
-        out=None,
-        size=None,
-        generateconfig=None,
-        configpath=None,
-        configfolder=None,
-        configstring=None,
-        metadata=None,
-    ):
-        self.file = file
-        self.out = out
-        self.size = size
-        self.generateconfig = generateconfig
-        self.configpath = configpath
-        self.configfolder = configfolder
-        self.configstring = configstring
-        self.metadata = metadata
-
-    def get_config_path(self):
-        if self.configpath != "-":
-            p = path.join(self.configfolder, self.configpath)
-        else:
-            p = self.configpath
-        return p
-
-
-def _print_help():
-    ctx = click.get_current_context()
-    click.echo(ctx.get_help())
-
-
-def wrap_generator(func):
-    """Convenient decorator function for command line use."""
-
-    @click.pass_obj
-    def wrapper(h, **kwargs):
-        if h.generateconfig:
-            p = h.get_config_path()
-            with click.open_file(p, "w") as outfile:
-                # click.echo(f"Saving to config file to {p}")
-                json.dump(kwargs, outfile)
-        else:
-            if not h.file.isatty():
-                func(h, **kwargs)
-            else:
-
-                click.echo("Please give a dataset using --file or STDIN")
-                _print_help()
-
-    return wrapper
 
 
 def encode_ordinal(dataset: Dataset):

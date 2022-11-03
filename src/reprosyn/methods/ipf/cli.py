@@ -1,6 +1,6 @@
 import click
 
-from reprosyn.generator import wrap_generator
+from reprosyn.cli_utils import wrap_generator
 from reprosyn.methods.ipf.ipf import IPF
 
 
@@ -9,9 +9,10 @@ from reprosyn.methods.ipf.ipf import IPF
     short_help="Iterative proportional fitting",
     options_metavar="[GENERATOR OPTIONS]",
 )
+# TODO: Add marginals as a click.unprocessed option
 @wrap_generator
-def cmd_ipf(h, **kwargs):
-    """Runs IPF on --file or STDIN
+def cmd_ipf(ctx, **params):
+    """Runs IPF on --dataset or STDIN
 
     See rsyn --help for general use.
 
@@ -20,7 +21,8 @@ def cmd_ipf(h, **kwargs):
     rsyn --file census.csv mst  \n
     rsyn ipf < census.csv
     """
-    generator = IPF(dataset=h.file, size=h.size, output_dr=h.out, **kwargs)
+
+    generator = IPF(**ctx.parent.params, **params)
     generator.run()
     return generator.output
 
