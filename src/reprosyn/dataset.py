@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from os import path
+import io
 
 import pandas as pd
 import requests
@@ -109,8 +110,13 @@ class Dataset:
 
     @staticmethod
     def read_dataset(dataset: pd.DataFrame | str) -> pd.DataFrame:
+
+        if not dataset:
+            raise Exception("a dataset must be passed")
         if isinstance(dataset, pd.DataFrame):
             return dataset
+        elif isinstance(dataset, io.TextIOWrapper):
+            return pd.read_csv(dataset)
         elif path.isfile(dataset):
             return pd.read_csv(dataset)
         else:
@@ -118,8 +124,13 @@ class Dataset:
 
     @staticmethod
     def read_metadata(metadata: list | str):
+
+        if not metadata:
+            raise Exception("metadata must be passed")
         if isinstance(metadata, list):
             return metadata
+        elif isinstance(metadata, io.TextIOWrapper):
+            return json.loads(metadata)
         elif path.isfile(metadata):
             return json.loads(metadata)
         elif _is_url(metadata):
