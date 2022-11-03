@@ -1,6 +1,6 @@
 import click
 
-from reprosyn.generator import wrap_generator
+from reprosyn.cli_utils import wrap_generator
 from reprosyn.methods.mbi.mst import MST
 from reprosyn.methods.mbi.privbayes import PRIVBAYES
 
@@ -41,23 +41,17 @@ from reprosyn.methods.mbi.privbayes import PRIVBAYES
 #     help="maximum number of cells for marginals in workload",
 # )
 @wrap_generator
-def cmd_mst(h, **kwargs):
-    """Runs MST on --file or STDIN
+def cmd_mst(ctx, **kwargs):
+    """Runs MST on --dataset or STDIN
 
-    See rsyn --help for general use.
+    See rsyn mst --help for general use.
 
     Examples:
 
-    $ rsyn --file census.csv mst
+    $ rsyn --dataset census.csv mst
     $ rsyn mst < census.csv
     """
-    generator = MST(
-        dataset=h.file,
-        metadata=h.metadata,
-        size=h.size,
-        output_dir=h.out,
-        **kwargs
-    )
+    generator = MST(**ctx.parent.params, **kwargs)
     generator.run()
     return generator.output
 
@@ -83,22 +77,16 @@ def cmd_mst(h, **kwargs):
     help="random seed",
 )
 @wrap_generator
-def cmd_pb(h, **kwargs):
-    """Runs PrivBayes on --file or STDIN
+def cmd_pb(ctx, **kwargs):
+    """Runs PrivBayes on --dataset or STDIN
 
-    See rsyn --help for general use.
+    See rsyn privbayes --help for general use.
 
     Examples:
 
-    $ rsyn --file census.csv mst
+    $ rsyn --dataset census.csv mst
     $ rsyn privbayes < census.csv
     """
-    generator = PRIVBAYES(
-        dataset=h.file,
-        metadata=h.metadata,
-        size=h.size,
-        output_dir=h.out,
-        **kwargs
-    )
+    generator = PRIVBAYES(**ctx.parent.params, **kwargs)
     generator.run()
     return generator.output

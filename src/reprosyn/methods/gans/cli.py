@@ -1,6 +1,6 @@
 import click
 
-from reprosyn.generator import wrap_generator
+from reprosyn.cli_utils import wrap_generator
 from reprosyn.methods.gans.gans import CTGAN, PATEGAN
 
 
@@ -48,17 +48,12 @@ from reprosyn.methods.gans.gans import CTGAN, PATEGAN
     help="Number of iterations",
 )
 @wrap_generator
-def cmd_ctgan(h, **kwargs):
-    """Runs ctgan on --file or STDIN
+def cmd_ctgan(ctx, **kwargs):
+    """Runs ctgan on --dataset or STDIN
 
-    See rsyn --help for general use.
-
-    Examples:
-
-    rsyn --file census.csv mst  \n
-    rsyn ctgan < census.csv
+    See rsyn ctgan --help.
     """
-    generator = CTGAN(dataset=h.file, size=h.size, output_dir=h.out, **kwargs)
+    generator = CTGAN(**ctx.parent.params, **kwargs)
     generator.run()
     return generator.output
 
@@ -101,10 +96,8 @@ def cmd_ctgan(h, **kwargs):
     default=1e-4,
 )
 @wrap_generator
-def cmd_pategan(h, **kwargs):
+def cmd_pategan(ctx, **kwargs):
 
-    generator = PATEGAN(
-        dataset=h.file, size=h.size, output_dir=h.out, **kwargs
-    )
+    generator = PATEGAN(**ctx.parent.params, **kwargs)
     generator.run()
     return generator.output

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from os import path
+import io
 
 import pandas as pd
 import requests
@@ -58,7 +59,7 @@ class Dataset:
             self.metadata = [c for c in self.metadata if c["name"] in columns]
         elif set(columns) > set(metadata_cols):
             raise Exception(
-                f"The following columns are not represented in metedata: {set(columns)-set(metadata_cols)}"
+                f"The following columns are not represented in metadata: {set(columns)-set(metadata_cols)}"
             )
 
     @staticmethod
@@ -109,17 +110,32 @@ class Dataset:
 
     @staticmethod
     def read_dataset(dataset: pd.DataFrame | str) -> pd.DataFrame:
-        if isinstance(dataset, pd.DataFrame):
+
+        if dataset is None:
+            raise Exception("a dataset must be passed")
+        elif isinstance(dataset, pd.DataFrame):
             return dataset
-        elif path.isfile(dataset):
+        elif isinstance(dataset, io.TextIOWrapper):
+            return pd.read_csv(dataset)
+        elif any(
+            [
+                path.isfile(dataset),
+                _is_url(dataset),
+            ]
+        ):
             return pd.read_csv(dataset)
         else:
             raise Exception("dataset must be a dataframe or csv")
 
     @staticmethod
     def read_metadata(metadata: list | str):
+
+        if metadata is None:
+            raise Exception("metadata must be passed")
         if isinstance(metadata, list):
             return metadata
+        elif isinstance(metadata, io.TextIOWrapper):
+            return json.loads(metadata)
         elif path.isfile(metadata):
             return json.loads(metadata)
         elif _is_url(metadata):
