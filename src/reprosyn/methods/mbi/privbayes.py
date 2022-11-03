@@ -3,24 +3,37 @@ import json
 
 import numpy as np
 import pandas as pd
-from ektelo.algorithm import (
-    privBayesSelect,
-)
-from ektelo.matrix import Identity
+
 from mbi import Dataset, Domain, Factor
 
 from reprosyn.generator import PipelineBase, encode_ordinal, decode_ordinal
+
+EKTELO = True
+try:
+    from ektelo.algorithm import (
+        privBayesSelect,
+    )
+    from ektelo.matrix import Identity
+except ImportError:
+    EKTELO = False
+
 
 """
 Code adapted from https://github.com/ryan112358/private-pgm/blob/master/examples/privbayes.py
 
 
-This file implements PrivBayes, with and without graphical-model based inference.
+This file implements PrivBayes, without graphical-model based inference.
 Zhang, Jun, Graham Cormode, Cecilia M. Procopiuc, Divesh Srivastava, and Xiaokui Xiao. "Privbayes: Private data release via bayesian networks." ACM Transactions on Database Systems (TODS) 42, no. 4 (2017): 25.
 """
 
 
 def privbayes_measurements(data, eps=1.0, seed=0):
+
+    if not EKTELO:
+        raise Exception(
+            "Privbayes unavailable as ektelo not installed. Try 'pip install git+https://github.com/alan-turing-institute/reprosyn.git -E ektelo'"
+        )
+
     domain = data.domain
     config = ""
     for a in domain:

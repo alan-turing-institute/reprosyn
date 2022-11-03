@@ -48,7 +48,7 @@ from reprosyn.methods.gans.gans import CTGAN, PATEGAN
     help="Number of iterations",
 )
 @wrap_generator
-def ctgancommand(h, **kwargs):
+def cmd_ctgan(h, **kwargs):
     """Runs ctgan on --file or STDIN
 
     See rsyn --help for general use.
@@ -101,14 +101,10 @@ def ctgancommand(h, **kwargs):
     default=1e-4,
 )
 @wrap_generator
-def pategan(h, **kwargs):
+def cmd_pategan(h, **kwargs):
 
     generator = PATEGAN(
         dataset=h.file, size=h.size, output_dir=h.out, **kwargs
     )
     generator.run()
     return generator.output
-
-
-if __name__ == "__main__":
-    ctgancommand()

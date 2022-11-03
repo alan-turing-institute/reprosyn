@@ -67,6 +67,17 @@ def check_output(data):
     )
 
 
+def test_ipf():
+    ipf = IPF(
+        dataset=dummy.copy(),
+        metadata=metadata,
+        size=synth_size,
+        marginals=[(0, 1)],
+    )
+    ipf.run()
+    check_output(ipf.output)
+
+
 def test_mst():
     mst = MST(
         dataset=dummy.copy(),
@@ -130,15 +141,3 @@ def test_DS_PRIVBAYES():
     )
     gen.run()
     check_output(gen.output)
-
-
-def test_ipf():
-    ipf = IPF(
-        dataset=dummy.copy(),
-        metadata=metadata,
-        size=synth_size,
-        marginals=[(0, 1)],
-        epsilon=epsilon,
-    )
-    ipf.run()
-    check_output(ipf.output)
