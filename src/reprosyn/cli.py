@@ -80,9 +80,6 @@ def cli(ctx, **params):
     census.csv > rsyn mst
     """
 
-    click.echo("cli")
-    click.echo(params)
-
     if os.path.exists(get_config_path(params)):
         if params["generateconfig"]:
             click.confirm(
@@ -118,6 +115,9 @@ for cmd in COMMANDS:
 def custom(ctx, location):
     """Find, load and run a custom generator.
 
+    You can add any additional options the method needs after the location.
+
+
     Parameters
     ----------
     location : str
@@ -145,7 +145,7 @@ def custom(ctx, location):
     if not issubclass(gen, PipelineBase):
         raise ValueError("location must specify a GeneratorFunc subclass.")
 
-    generator = gen(**ctx.params, **method_args)
+    generator = gen(**ctx.parent.params, **method_args)
     generator.run()
 
     return generator.output
