@@ -111,7 +111,7 @@ class Dataset:
     @staticmethod
     def read_dataset(dataset: pd.DataFrame | str) -> pd.DataFrame:
 
-        if not dataset:
+        if dataset is None:
             raise Exception("a dataset must be passed")
         elif isinstance(dataset, pd.DataFrame):
             return dataset
@@ -130,7 +130,7 @@ class Dataset:
     @staticmethod
     def read_metadata(metadata: list | str):
 
-        if not metadata:
+        if metadata is None:
             raise Exception("metadata must be passed")
         if isinstance(metadata, list):
             return metadata
