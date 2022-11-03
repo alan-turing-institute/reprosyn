@@ -59,7 +59,7 @@ class Dataset:
             self.metadata = [c for c in self.metadata if c["name"] in columns]
         elif set(columns) > set(metadata_cols):
             raise Exception(
-                f"The following columns are not represented in metedata: {set(columns)-set(metadata_cols)}"
+                f"The following columns are not represented in metadata: {set(columns)-set(metadata_cols)}"
             )
 
     @staticmethod
@@ -113,11 +113,16 @@ class Dataset:
 
         if not dataset:
             raise Exception("a dataset must be passed")
-        if isinstance(dataset, pd.DataFrame):
+        elif isinstance(dataset, pd.DataFrame):
             return dataset
         elif isinstance(dataset, io.TextIOWrapper):
             return pd.read_csv(dataset)
-        elif path.isfile(dataset):
+        elif any(
+            [
+                path.isfile(dataset),
+                _is_url(dataset),
+            ]
+        ):
             return pd.read_csv(dataset)
         else:
             raise Exception("dataset must be a dataframe or csv")

@@ -1,6 +1,6 @@
 import click
 
-from reprosyn.generator import wrap_generator
+from reprosyn.cli_utils import wrap_generator
 from reprosyn.methods.synthpop.synthpop import SYNTHPOP
 
 
@@ -19,22 +19,11 @@ from reprosyn.methods.synthpop.synthpop import SYNTHPOP
     help="random seed",
 )
 @wrap_generator
-def cmd_spop(h, **kwargs):
-    """Runs SynthPop on --file or STDIN
+def cmd_spop(ctx, **kwargs):
+    """Runs SynthPop on --dataset or STDIN
 
-    See rsyn --help for general use.
-
-    Examples:
-
-    $ rsyn --file census.csv mst
-    $ rsyn synthpop < census.csv
+    See rsyn synthpop --help for general use.
     """
-    generator = SYNTHPOP(
-        dataset=h.file,
-        metadata=h.metadata,
-        size=h.size,
-        output_dir=h.out,
-        **kwargs
-    )
+    generator = SYNTHPOP(**ctx.parent.params, **kwargs)
     generator.run()
     return generator.output

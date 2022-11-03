@@ -62,10 +62,14 @@ class PipelineBase:
     ):
 
         # defaults for dev:
-        if not metadata:
-            metadata = "https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json"
-        if not dataset:
-            dataset = "https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv"
+        metadata = (
+            metadata
+            or "https://raw.githubusercontent.com/alan-turing-institute/privacy-sdg-toolbox/main/prive/datasets/examples/census.json"
+        )
+        dataset = (
+            dataset
+            or "https://raw.githubusercontent.com/alan-turing-institute/reprosyn/main/src/reprosyn/datasets/2011-census-microdata/2011-census-microdata-small.csv"
+        )
 
         self.dataset = Dataset(dataset, metadata)
 
