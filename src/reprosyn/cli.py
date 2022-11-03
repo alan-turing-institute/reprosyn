@@ -117,6 +117,8 @@ def custom(ctx, location):
 
     You can add any additional options the method needs after the location.
 
+    E.g. ``rsyn --size <size> --dataset <path> custom './tests/custom_method.py:RAW' --replace True``
+
 
     Parameters
     ----------
