@@ -1,6 +1,6 @@
 import click
 
-from reprosyn.generator import wrap_generator
+from reprosyn.cli_utils import wrap_generator
 from reprosyn.methods.data_synthesiser.wrapper import (
     DS_BAYNET,
     DS_INDHIST,
@@ -25,11 +25,9 @@ from reprosyn.methods.data_synthesiser.wrapper import (
     default=1,
 )
 @wrap_generator
-def cmd_baynet(h, **kwargs):
+def cmd_baynet(ctx, **kwargs):
 
-    generator = DS_BAYNET(
-        dataset=h.file, size=h.size, output_dr=h.out, **kwargs
-    )
+    generator = DS_BAYNET(**ctx.parent.params, **kwargs)
     generator.run()
     return generator.output
 
@@ -46,11 +44,9 @@ def cmd_baynet(h, **kwargs):
     default=10,
     help="number of bins",
 )
-def cmd_indhist(h, **kwargs):
+def cmd_indhist(ctx, **kwargs):
 
-    generator = DS_INDHIST(
-        dataset=h.file, size=h.size, output_dr=h.out, **kwargs
-    )
+    generator = DS_INDHIST(**ctx.parent.params, **kwargs)
     generator.run()
     return generator.output
 
@@ -79,10 +75,8 @@ def cmd_indhist(h, **kwargs):
     default=1.0,
     help="privacy parameter epsilon",
 )
-def cmd_ds_privbayes(h, **kwargs):
+def cmd_ds_privbayes(ctx, **kwargs):
 
-    generator = DS_PRIVBAYES(
-        dataset=h.file, size=h.size, output_dr=h.out, **kwargs
-    )
+    generator = DS_PRIVBAYES(**ctx.parents.params, **kwargs)
     generator.run()
     return generator.output
