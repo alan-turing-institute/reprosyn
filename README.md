@@ -8,7 +8,7 @@ Reprosyn is a python library for generating synthetic data.
 
 Reprosyn's aim is to wrap generators so that they can be easily used with same interface. See how to [add generators]().
 
-It can be used either as a [python package]() or a [command-line tool]().
+It can be used either as a python package or a command-line tool.
 
 The [Documentation](https://reprosyn.readthedocs.io/en/latest/) is the best place to get started.
 
