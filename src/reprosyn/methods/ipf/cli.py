@@ -18,7 +18,7 @@ def cmd_ipf(ctx, **params):
 
     Examples:
 
-    rsyn --file census.csv mst  \n
+    rsyn --dataset census.csv mst  \n
     rsyn ipf < census.csv
     """
 

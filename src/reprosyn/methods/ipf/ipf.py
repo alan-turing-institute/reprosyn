@@ -221,6 +221,8 @@ class IPF(PipelineBase):
     Notes
     -----
 
+    IPF deals solely with categorical data.
+
     The count matrix (see :func:`count_matrix`) is the computational bottleneck,
     so is calculated once during preprocessing. This is the key obstacle to scaling.
 
@@ -246,14 +248,11 @@ class IPF(PipelineBase):
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
-        """IPF deals solely with categorical data.
+        """The preprocessing steps:
 
-        The preprocessing steps:
-        - encode dataset, see :func:`encode_ordinal`.
-        - save encoded data as a transposed numpy array.
-        - calculate count matrix, see :func:`count_matrix`.
-
-        """
+        1. encode dataset, see :func:`encode_ordinal`.
+        2. save encoded data as a transposed numpy array.
+        3. calculate count matrix, see :func:`count_matrix`."""
 
         data, self.encoders = encode_ordinal(self.dataset)
         self.data_array = data.to_numpy().T

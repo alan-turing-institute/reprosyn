@@ -6,3 +6,4 @@ Extended Methods Reference
    :titlesonly:
 
    ipf
+   mst

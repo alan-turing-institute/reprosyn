@@ -1,7 +1,7 @@
 Methods Catalogue
 =================
 
-All these methods have been implemented by adapting other codebases. See class documentation for origin.
+All these methods, apart from IPF, have been implemented by adapting other codebases. See class documentation for origin.
 
 .. contents:: Methods
     :local:
@@ -11,6 +11,8 @@ IPF
 ---
 
 .. autoclass:: reprosyn.methods.ipf.ipf.IPF
+    :members:
+    :exclude-members: generator
 
 See :doc:`methods/ipf` for more details
 
@@ -19,8 +21,21 @@ MST
 ---------------
 
 .. autoclass:: reprosyn.methods.mbi.mst.MST
-   
+    :members:
+    :exclude-members: generator
+    
 
+   
+See :doc:`methods/mst` for functions used.
+
+
+Synthpop
+---------------
+
+.. autoclass:: reprosyn.methods.synthpop.synthpop.SYNTHPOP
+    :members:
+    :exclude-members: generator
+    
 CTGAN
 ---------------
 
