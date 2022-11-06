@@ -35,18 +35,25 @@ Synthpop
 .. autoclass:: reprosyn.methods.synthpop.synthpop.SYNTHPOP
     :members:
     :exclude-members: generator
-    
+
 CTGAN
 ---------------
 
 .. autoclass:: reprosyn.methods.gans.gans.CTGAN
+    :members:
+    :exclude-members: generator
+
+See :doc:`methods/gans` for metadata function.
    
 
 PATEGAN
 ---------------
 
 .. autoclass:: reprosyn.methods.gans.gans.PATEGAN
-   
+    :members:
+    :exclude-members: generator
+
+See :doc:`methods/pategan` for metadata function.
 
 
 Individual Histograms
