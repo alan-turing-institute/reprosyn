@@ -4,7 +4,7 @@ This is a generalization of the winning mechanism from the
 2018 NIST Differential Privacy Synthetic Data Competition.
 Unlike the original implementation, this one can work for any discrete
 dataset, and does not rely on public provisional data for measurement
-selection.
+selection. Code from `private-pgm <https://github.com/ryan112358/private-pgm/blob/master/mechanisms/mst.py>`_
 """
 
 import itertools
@@ -20,15 +20,9 @@ from scipy.special import logsumexp
 from reprosyn.methods.mbi.cdp2adp import cdp_rho
 from reprosyn.generator import PipelineBase, encode_ordinal, decode_ordinal
 
-"""
-This is a generalization of the winning mechanism from the
-2018 NIST Differential Privacy Synthetic Data Competition.
-Unlike the original implementation, this one can work for any discrete dataset,
-and does not rely on public provisional data for measurement selection.
-"""
-
 
 def mst(data, epsilon, delta, rows):
+
     rho = cdp_rho(epsilon, delta)
     sigma = np.sqrt(3 / (2 * rho))
     cliques = [(col,) for col in data.domain]
@@ -43,6 +37,7 @@ def mst(data, epsilon, delta, rows):
 
 
 def measure(data, cliques, sigma, weights=None):
+
     if weights is None:
         weights = np.ones(len(cliques))
     weights = np.array(weights) / np.linalg.norm(weights)
@@ -156,30 +151,60 @@ def reverse_data(data, supports):
     return Dataset(df, newdom)
 
 
-def get_domain_dict(data):
-
-    return dict(zip(data.columns, data.nunique()))
-
-
 def domain_from_metadata(metadata: list[dict]):
+    """From the dataset metadata, return dictionary of column names and sizes
+
+    Parameters
+    ----------
+    metadata : list[dict]
+        metadata, see `Data Format <https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html>`_
+
+    Returns
+    -------
+    Dict
+        Dictionary of feature:size
+    """
 
     return {col["name"]: len(col["representation"]) for col in metadata}
 
 
 class MST(PipelineBase):
-    """Generator class for the MST mechanism."""
+    """Generator class for Maximum Spanning Tree algorithm.
+
+    Parameters
+    ----------
+    epsilon : float
+        privacy budget parameter
+    delta : float
+        privacy parameter
+
+    Notes
+    -----
+
+    Uses the package `Private-PGM`. Code adapted from `private-pgm <https://github.com/ryan112358/private-pgm/blob/master/mechanisms/mst.py>`_
+
+    Further reading:
+
+        * `Mckenna et al 2021. Winning the NIST Contest: A scalable and general approach to differentially private synthetic data <https://arxiv.org/abs/2108.04978>`_.
+        * `Mckenna et al 2019. Graphical-model based estimation and inference for differential privacy <https://arxiv.org/abs/1901.09136>`_.
+
+
+    """
 
     generator = staticmethod(mst)
 
-    def __init__(self, epsilon=1.0, delta=1e-9, degree=2, **kw):
-        parameters = {
-            "epsilon": epsilon,
-            "delta": delta,
-            "degree": degree,
-        }
+    def __init__(self, epsilon=1.0, delta=1e-9, **kw):
+        parameters = {"epsilon": epsilon, "delta": delta}
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
+        """The preprocessing steps:
+
+        1. encode dataset, see :func:`encode_ordinal`.
+        2. Get domain from metadata. see :func:`domain_from_metadata`.
+        3. Save encoded data as an mbi class ``Dataset``.
+
+        """
         self.encoded_dataset, self.encoders = encode_ordinal(self.dataset)
 
         self.domain = domain_from_metadata(self.dataset.metadata)
@@ -189,6 +214,8 @@ class MST(PipelineBase):
         )
 
     def generate(self):
+        """See generator function :func:`mst`"""
+
         self.output = self.generator(
             self.encoded_dataset,
             self.params["epsilon"],
@@ -198,9 +225,12 @@ class MST(PipelineBase):
         return self.output
 
     def postprocess(self):
+        """Decodes output using :func:`decode_ordinal`"""
+
         self.output = decode_ordinal(self.output.df, self.encoders)
 
     def save(self, domain_fn="domain.json"):
+        """Saves output, additional saves domain json"""
         super().save()
-        with open(self.output_dir / domain_fn, "w") as outfile:
+        with open(self.out / domain_fn, "w") as outfile:
             json.dump(self.domain, outfile)
