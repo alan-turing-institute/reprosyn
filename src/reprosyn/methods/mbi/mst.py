@@ -232,5 +232,5 @@ class MST(PipelineBase):
     def save(self, domain_fn="domain.json"):
         """Saves output, additional saves domain json"""
         super().save()
-        with open(self.out / domain_fn, "w") as outfile:
+        with open(self.output_dir / domain_fn, "w") as outfile:
             json.dump(self.domain, outfile)
