@@ -6,3 +6,6 @@ Extended Methods Reference
    :titlesonly:
 
    ipf
+   mst
+   gans
+   pategan

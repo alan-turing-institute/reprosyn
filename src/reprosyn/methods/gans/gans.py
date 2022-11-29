@@ -5,26 +5,28 @@ from reprosyn.generator import PipelineBase
 from ctgan import CTGANSynthesizer
 from reprosyn.methods.gans.pate_gan import PateGan
 
-"""
-CTGAN Args:
-    embedding_dim (int):
-        Size of the random sample passed to the Generator. Defaults to 128.
-    gen_dim (tuple or list of ints):
-        Size of the output samples for each one of the Residuals. A Resiudal Layer
-        will be created for each one of the values provided. Defaults to (256, 256).
-    dis_dim (tuple or list of ints):
-        Size of the output samples for each one of the Discriminator Layers. A Linear Layer
-        will be created for each one of the values provided. Defaults to (256, 256).
-    l2scale (float):
-        Wheight Decay for the Adam Optimizer. Defaults to 1e-6.
-    batch_size (int):
-        Number of data samples to process in each step.
-"""
-
 
 def get_metadata(metadata, col_type="categorical"):
+    """Transform metadata into a form useful for the generator
 
-    # TODO: for now, just do everything as categorical. Need to edit to pick up data type from columns
+    Parameters
+    ----------
+    metadata : list[dict]
+        metadata, see `Data Format <https://privacy-sdg-toolbox.readthedocs.io/en/latest/dataset-schema.html>`_
+    col_type : str, optional
+        column type, by default "categorical"
+
+    Returns
+    -------
+    dict
+        a 'columns' key gives a list[dict] of column info, with keys 'name', 'type', 'size', 'i2s'.
+
+    Notes
+    -----
+
+    To be more flexible ``col_type`` should be a named list.
+    """
+
     meta = {}
     meta["columns"] = [
         {
@@ -39,6 +41,36 @@ def get_metadata(metadata, col_type="categorical"):
 
 
 class CTGAN(PipelineBase):
+    """Generator class for CTGAN, uses ``ctgan``.
+
+
+    Parameters
+    ----------
+    embedding_dim : int, optional
+        Size of the random sample passed to the Generator. Defaults to 128.
+    gen_dim : tuple[int], optional
+        Size of the output samples for each one of the Residuals. A Resiudal Layer
+    will be created for each one of the values provided. Defaults to (256, 256).
+    dis_dim : tuple[int], optional
+        Size of the output samples for each one of the Discriminator Layers. A Linear Layer
+    will be created for each one of the values provided. Defaults to (256, 256).
+    l2scale : float, optional
+        Weight Decay for the Adam Optimizer. Defaults to 1e-6.
+    batch_size : int, optional
+        Number of data samples to process in each step.
+    epochs : int, optional
+        number of steps, by default 300
+
+    Notes
+    -----
+
+    Code is forked from `spring-epfil <https://github.com/spring-epfl/CTGAN>`_, which is a fork of `SDV-dev <https://github.com/sdv-dev/CTGAN>`_
+
+    For further reading:
+
+        * `Xu et al 2019. Modeling Tabular data using Conditional GAN <https://arxiv.org/abs/1907.00503>`_.
+    """
+
     def __init__(
         self,
         embedding_dim=128,
@@ -64,10 +96,18 @@ class CTGAN(PipelineBase):
         super().__init__(**kw, **parameters)
 
     def preprocess(self):
+        """Gets metadata using :func:`get_metadata`"""
 
         self.meta = get_metadata(self.dataset.metadata)
 
     def generate(self, refit=False):
+        """See `CTGANSynthesizer.fit() <https://github.com/alan-turing-institute/CTGAN/blob/master/ctgan/synthesizer.py#L111>`_ and `CTGANSynthesizer.sample() <https://github.com/alan-turing-institute/CTGAN/blob/master/ctgan/synthesizer.py#L240>`_
+
+        Parameters
+        ----------
+        refit : bool, optional
+           If true refits a `CTGANSynthesizer <https://github.com/alan-turing-institute/CTGAN/blob/master/ctgan/synthesizer.py#L20>`_ class
+        """
 
         if (not self.ctgan) or refit:
             self.ctgan = CTGANSynthesizer(**self.params)
