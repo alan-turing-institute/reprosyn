@@ -135,7 +135,7 @@ class Dataset:
         if isinstance(metadata, list):
             return metadata
         elif isinstance(metadata, io.TextIOWrapper):
-            return json.loads(metadata)
+            return json.load(metadata)
         elif path.isfile(metadata):
             return json.loads(metadata)
         elif _is_url(metadata):
