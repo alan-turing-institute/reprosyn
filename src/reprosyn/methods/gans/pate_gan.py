@@ -47,6 +47,7 @@ class PateGan(GenerativeModel):
         batch_size=128,
         learning_rate=1e-4,
         multiprocess=False,
+        **kw,
     ):
         """
         :param metadata: dict: Attribute metadata describing the data domain of the synthetic target data
